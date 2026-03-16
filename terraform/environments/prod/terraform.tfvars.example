@@ -1,0 +1,9 @@
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
+
+admin_cidrs = [
+  # Office/VPN CIDRs for control plane + SSH access
+  # "203.0.113.0/24",
+]
+
+# Populated automatically after first Akamai DS2 apply
+ds2_stream_id = 0

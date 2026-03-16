@@ -1,0 +1,989 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Domain Redirect Engine API",
+    "description": "Declarative redirect management API for the organization's parked domain portfolio. Manages domain-level and path-level HTTP redirects with full observability and analytics.\n\n## Authentication\n\nAll API requests require a `token` query parameter:\n```\nGET /api/v1/domains?token=YOUR_TOKEN\n```\n\n## Quick Start\n\n1. **Add a domain**: `POST /api/v1/domains` with `{\"name\": \"legacy-bank.com\", \"default_url\": \"https://www.example.com\"}`\n2. **Add path rules**: `POST /api/v1/domains/legacy-bank.com/rules` with `{\"path\": \"/mortgage\", \"target_url\": \"https://www.example.com/mortgage\"}`\n3. **Check traffic**: `GET /api/v1/analytics/summary` to see which domains are receiving hits\n4. **Find dead domains**: `GET /api/v1/analytics/inactive?days=30` to identify cleanup candidates",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Brian Apley",
+      "email": "admin@connected-cloud.io"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "Current instance"
+    }
+  ],
+  "security": [
+    {
+      "tokenAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Domains",
+      "description": "CRUD operations for managed redirect domains"
+    },
+    {
+      "name": "Rules",
+      "description": "Path-level redirect rules within a domain"
+    },
+    {
+      "name": "Bulk Operations",
+      "description": "Bulk import and export of domains and rules"
+    },
+    {
+      "name": "Analytics",
+      "description": "Traffic observability, hit counts, inactive domain detection, and trend analysis"
+    }
+  ],
+  "paths": {
+    "/domains": {
+      "get": {
+        "tags": ["Domains"],
+        "summary": "List all domains",
+        "description": "Returns a paginated list of all managed redirect domains, sorted by name.",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Filter domains by name (substring match)",
+            "schema": { "type": "string" },
+            "example": "legacy"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Max results to return (default: 50)",
+            "schema": { "type": "integer", "default": 50 }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Number of results to skip for pagination",
+            "schema": { "type": "integer", "default": 0 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated domain list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "domains": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Domain" }
+                    },
+                    "total": { "type": "integer", "description": "Total matching domains" },
+                    "limit": { "type": "integer" },
+                    "offset": { "type": "integer" }
+                  }
+                },
+                "example": {
+                  "domains": [
+                    {
+                      "id": 1,
+                      "name": "legacy-bank.com",
+                      "default_url": "https://www.example.com",
+                      "status_code": 301,
+                      "enabled": true,
+                      "created_at": "2026-03-12T14:00:00",
+                      "updated_at": "2026-03-12T14:00:00"
+                    }
+                  ],
+                  "total": 1,
+                  "limit": 50,
+                  "offset": 0
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Domains"],
+        "summary": "Add a domain",
+        "description": "Register a new domain for redirect management. The redirect engine picks up the new domain immediately.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DomainCreate" },
+              "example": {
+                "name": "legacy-bank.com",
+                "default_url": "https://www.example.com",
+                "status_code": 301
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Domain created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Domain" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (missing name or default_url)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "example": { "error": "name and default_url are required" }
+              }
+            }
+          },
+          "409": {
+            "description": "Domain already exists",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "example": { "error": "domain already exists" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/domains/{domain}": {
+      "get": {
+        "tags": ["Domains"],
+        "summary": "Get domain details",
+        "description": "Returns a single domain with all its path-level redirect rules.",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "description": "Domain name",
+            "schema": { "type": "string" },
+            "example": "legacy-bank.com"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Domain with rules",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DomainWithRules" },
+                "example": {
+                  "id": 1,
+                  "name": "legacy-bank.com",
+                  "default_url": "https://www.example.com",
+                  "status_code": 301,
+                  "enabled": true,
+                  "created_at": "2026-03-12T14:00:00",
+                  "updated_at": "2026-03-12T14:00:00",
+                  "rules": [
+                    {
+                      "id": 1,
+                      "domain_id": 1,
+                      "path": "/mortgage",
+                      "target_url": "https://www.example.com/en/personal-banking/borrowing/home-lending.html",
+                      "status_code": 301,
+                      "priority": 10,
+                      "enabled": true,
+                      "created_at": "2026-03-12T14:00:00",
+                      "updated_at": "2026-03-12T14:00:00"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Domains"],
+        "summary": "Update a domain",
+        "description": "Update the default redirect URL, status code, or enabled state. Changes take effect immediately.",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "legacy-bank.com"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DomainUpdate" },
+              "example": {
+                "default_url": "https://www.example.com/new-landing",
+                "status_code": 302,
+                "enabled": true
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Domain updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusResponse" },
+                "example": { "status": "updated" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Domains"],
+        "summary": "Delete a domain",
+        "description": "Remove a domain and all its redirect rules. The redirect engine stops serving this domain immediately.",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "legacy-bank.com"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Domain deleted",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusResponse" },
+                "example": { "status": "deleted" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/domains/{domain}/rules": {
+      "get": {
+        "tags": ["Rules"],
+        "summary": "List redirect rules",
+        "description": "Returns all path-level redirect rules for a domain, sorted by priority (highest first).",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "legacy-bank.com"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rule list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/RedirectRule" }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Rules"],
+        "summary": "Add a redirect rule",
+        "description": "Add a path-level redirect rule to a domain. When a request matches the path, it redirects to the rule's target URL instead of the domain default. Rules are matched by priority (highest first), with prefix matching.",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "legacy-bank.com"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RuleCreate" },
+              "example": {
+                "path": "/mortgage",
+                "target_url": "https://www.example.com/en/personal-banking/borrowing/home-lending.html",
+                "status_code": 301,
+                "priority": 10
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Rule created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RedirectRule" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" },
+                "example": { "error": "path and target_url are required" }
+              }
+            }
+          },
+          "404": {
+            "description": "Domain not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          },
+          "409": {
+            "description": "Rule for this path already exists",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/domains/{domain}/rules/{id}": {
+      "put": {
+        "tags": ["Rules"],
+        "summary": "Update a redirect rule",
+        "description": "Update the path, target URL, status code, priority, or enabled state of a redirect rule.",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Rule ID",
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RuleUpdate" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Rule updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid rule ID",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Rules"],
+        "summary": "Delete a redirect rule",
+        "description": "Remove a path-level redirect rule. Requests matching this path will fall through to the domain's default redirect.",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rule deleted",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatusResponse" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/import": {
+      "post": {
+        "tags": ["Bulk Operations"],
+        "summary": "Bulk import domains and rules",
+        "description": "Import multiple domains with their redirect rules in a single request. Existing domains are skipped (not overwritten). Useful for initial migration from F5 or CSV exports.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/ImportEntry" }
+              },
+              "example": [
+                {
+                  "domain": "legacy-bank.com",
+                  "default_url": "https://www.example.com",
+                  "status_code": 301,
+                  "rules": [
+                    {
+                      "path": "/mortgage",
+                      "target_url": "https://www.example.com/mortgage",
+                      "status_code": 301,
+                      "priority": 10
+                    }
+                  ]
+                },
+                {
+                  "domain": "old-savings.com",
+                  "default_url": "https://www.example.com/savings",
+                  "status_code": 301,
+                  "rules": []
+                }
+              ]
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Import complete",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "imported": {
+                      "type": "integer",
+                      "description": "Number of domains imported"
+                    }
+                  }
+                },
+                "example": { "imported": 2 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/export": {
+      "get": {
+        "tags": ["Bulk Operations"],
+        "summary": "Export all domains and rules",
+        "description": "Export every domain and its redirect rules as a JSON array. The output format matches the import format for round-trip compatibility.",
+        "responses": {
+          "200": {
+            "description": "Complete export",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ImportEntry" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/summary": {
+      "get": {
+        "tags": ["Analytics"],
+        "summary": "Top domains by hit count",
+        "description": "Returns domains ranked by total redirect hits within the specified time window. Use this to identify your highest-traffic parked domains.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "description": "Start of time window (RFC 3339). Defaults to 7 days ago.",
+            "schema": { "type": "string", "format": "date-time" },
+            "example": "2026-03-05T00:00:00Z"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Max domains to return (default: 20)",
+            "schema": { "type": "integer", "default": 20 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Domain hit count ranking",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/DomainHitCount" }
+                },
+                "example": [
+                  { "domain": "legacy-bank.com", "hit_count": 1542 },
+                  { "domain": "old-savings.com", "hit_count": 287 }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/domains/{domain}": {
+      "get": {
+        "tags": ["Analytics"],
+        "summary": "Domain traffic over time",
+        "description": "Returns time-bucketed hit counts for a specific domain. Supports hourly, daily, and weekly granularity for trend visualization.",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "legacy-bank.com"
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "description": "Start of time window (RFC 3339). Defaults to 7 days ago.",
+            "schema": { "type": "string", "format": "date-time" }
+          },
+          {
+            "name": "until",
+            "in": "query",
+            "description": "End of time window (RFC 3339). Defaults to now.",
+            "schema": { "type": "string", "format": "date-time" }
+          },
+          {
+            "name": "granularity",
+            "in": "query",
+            "description": "Time bucket size",
+            "schema": { "type": "string", "enum": ["hourly", "daily", "weekly"], "default": "hourly" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Time-bucketed traffic data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/TimeBucket" }
+                },
+                "example": [
+                  { "bucket": "2026-03-12T00:00:00Z", "hit_count": 45 },
+                  { "bucket": "2026-03-12T01:00:00Z", "hit_count": 32 }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/domains/{domain}/paths": {
+      "get": {
+        "tags": ["Analytics"],
+        "summary": "Path breakdown for a domain",
+        "description": "Returns the most-hit request paths for a specific domain. Identifies which pages on a parked domain are still receiving traffic.",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "legacy-bank.com"
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "description": "Start of time window (RFC 3339). Defaults to 7 days ago.",
+            "schema": { "type": "string", "format": "date-time" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Max paths to return (default: 20)",
+            "schema": { "type": "integer", "default": 20 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Path hit counts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/PathCount" }
+                },
+                "example": [
+                  { "path": "/", "count": 890 },
+                  { "path": "/mortgage", "count": 234 },
+                  { "path": "/checking", "count": 156 }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/inactive": {
+      "get": {
+        "tags": ["Analytics"],
+        "summary": "Inactive domains (cleanup candidates)",
+        "description": "Returns domains that have received zero redirect traffic within the specified window. These are candidates for decommissioning. Critical for the organization's domain portfolio cleanup effort.",
+        "parameters": [
+          {
+            "name": "days",
+            "in": "query",
+            "description": "Lookback window in days (default: 30)",
+            "schema": { "type": "integer", "default": 30, "enum": [7, 30, 60, 90] }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Inactive domain list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "days": { "type": "integer", "description": "Lookback window used" },
+                    "domains": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "Domain names with zero hits"
+                    },
+                    "count": { "type": "integer", "description": "Number of inactive domains" }
+                  }
+                },
+                "example": {
+                  "days": 30,
+                  "domains": ["dead-bank.com", "unused-brand.com", "old-promo.com"],
+                  "count": 3
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/trending": {
+      "get": {
+        "tags": ["Analytics"],
+        "summary": "Trending domains",
+        "description": "Returns domains ranked by traffic trend (recent half vs. earlier half of the window). Positive values indicate increasing traffic; negative values indicate declining traffic.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "description": "Start of comparison window (RFC 3339). Defaults to 14 days ago.",
+            "schema": { "type": "string", "format": "date-time" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Max domains to return (default: 20)",
+            "schema": { "type": "integer", "default": 20 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trending domains with direction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/DomainHitCount" }
+                },
+                "example": [
+                  { "domain": "rising-traffic.com", "hit_count": 150 },
+                  { "domain": "declining-domain.com", "hit_count": -42 }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/referers": {
+      "get": {
+        "tags": ["Analytics"],
+        "summary": "Top referers",
+        "description": "Returns the most common HTTP referers across all redirect traffic. Shows where traffic to parked domains is originating (search engines, bookmarks, other sites).",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "description": "Start of time window (RFC 3339). Defaults to 7 days ago.",
+            "schema": { "type": "string", "format": "date-time" }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Max referers to return (default: 20)",
+            "schema": { "type": "integer", "default": 20 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Referer ranking",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/RefererCount" }
+                },
+                "example": [
+                  { "referer": "https://www.google.com/", "count": 523 },
+                  { "referer": "https://duckduckgo.com/", "count": 87 }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/analytics/export": {
+      "get": {
+        "tags": ["Analytics"],
+        "summary": "Export raw request logs",
+        "description": "Download raw redirect request logs for offline analysis. Supports JSON and CSV formats.",
+        "parameters": [
+          {
+            "name": "since",
+            "in": "query",
+            "description": "Start of export window (RFC 3339). Defaults to 7 days ago.",
+            "schema": { "type": "string", "format": "date-time" }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "description": "Output format",
+            "schema": { "type": "string", "enum": ["json", "csv"], "default": "json" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request log export",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/RequestLogEntry" }
+                }
+              },
+              "text/csv": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "tokenAuth": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token",
+        "description": "Admin API token passed as a query parameter"
+      }
+    },
+    "schemas": {
+      "Domain": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "name": { "type": "string", "description": "Fully qualified domain name", "example": "legacy-bank.com" },
+          "default_url": { "type": "string", "format": "uri", "description": "Default redirect target URL", "example": "https://www.example.com" },
+          "status_code": { "type": "integer", "description": "HTTP redirect status code", "enum": [301, 302], "example": 301 },
+          "enabled": { "type": "boolean", "description": "Whether this domain is actively serving redirects" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        },
+        "required": ["name", "default_url"]
+      },
+      "DomainCreate": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "description": "Fully qualified domain name", "example": "legacy-bank.com" },
+          "default_url": { "type": "string", "format": "uri", "description": "Default redirect target URL", "example": "https://www.example.com" },
+          "status_code": { "type": "integer", "description": "HTTP redirect status code (default: 301)", "enum": [301, 302], "default": 301 }
+        },
+        "required": ["name", "default_url"]
+      },
+      "DomainUpdate": {
+        "type": "object",
+        "properties": {
+          "default_url": { "type": "string", "format": "uri" },
+          "status_code": { "type": "integer", "enum": [301, 302] },
+          "enabled": { "type": "boolean" }
+        }
+      },
+      "DomainWithRules": {
+        "allOf": [
+          { "$ref": "#/components/schemas/Domain" },
+          {
+            "type": "object",
+            "properties": {
+              "rules": {
+                "type": "array",
+                "items": { "$ref": "#/components/schemas/RedirectRule" }
+              },
+              "hit_count": { "type": "integer", "description": "Total hits (when available)" }
+            }
+          }
+        ]
+      },
+      "RedirectRule": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "readOnly": true },
+          "domain_id": { "type": "integer", "readOnly": true },
+          "path": { "type": "string", "description": "URL path to match (prefix matching supported)", "example": "/mortgage" },
+          "target_url": { "type": "string", "format": "uri", "description": "Redirect target for this path", "example": "https://www.example.com/mortgage" },
+          "status_code": { "type": "integer", "enum": [301, 302], "example": 301 },
+          "priority": { "type": "integer", "description": "Higher priority rules are matched first", "example": 10 },
+          "enabled": { "type": "boolean" },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        },
+        "required": ["path", "target_url"]
+      },
+      "RuleCreate": {
+        "type": "object",
+        "properties": {
+          "path": { "type": "string", "example": "/mortgage" },
+          "target_url": { "type": "string", "format": "uri", "example": "https://www.example.com/mortgage" },
+          "status_code": { "type": "integer", "enum": [301, 302], "default": 301 },
+          "priority": { "type": "integer", "default": 0, "description": "Higher = matched first" }
+        },
+        "required": ["path", "target_url"]
+      },
+      "RuleUpdate": {
+        "type": "object",
+        "properties": {
+          "path": { "type": "string" },
+          "target_url": { "type": "string", "format": "uri" },
+          "status_code": { "type": "integer", "enum": [301, 302] },
+          "priority": { "type": "integer" },
+          "enabled": { "type": "boolean" }
+        }
+      },
+      "ImportEntry": {
+        "type": "object",
+        "description": "Domain with optional rules for bulk import/export",
+        "properties": {
+          "domain": { "type": "string", "example": "legacy-bank.com" },
+          "default_url": { "type": "string", "format": "uri", "example": "https://www.example.com" },
+          "status_code": { "type": "integer", "default": 301 },
+          "rules": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": { "type": "string", "example": "/mortgage" },
+                "target_url": { "type": "string", "format": "uri" },
+                "status_code": { "type": "integer", "default": 301 },
+                "priority": { "type": "integer", "default": 0 }
+              },
+              "required": ["path", "target_url"]
+            }
+          }
+        },
+        "required": ["domain", "default_url"]
+      },
+      "DomainHitCount": {
+        "type": "object",
+        "properties": {
+          "domain": { "type": "string" },
+          "hit_count": { "type": "integer", "description": "Total hits (or trend delta for trending endpoint)" }
+        }
+      },
+      "TimeBucket": {
+        "type": "object",
+        "properties": {
+          "bucket": { "type": "string", "format": "date-time", "description": "Time bucket start" },
+          "hit_count": { "type": "integer" }
+        }
+      },
+      "PathCount": {
+        "type": "object",
+        "properties": {
+          "path": { "type": "string" },
+          "count": { "type": "integer" }
+        }
+      },
+      "RefererCount": {
+        "type": "object",
+        "properties": {
+          "referer": { "type": "string" },
+          "count": { "type": "integer" }
+        }
+      },
+      "RequestLogEntry": {
+        "type": "object",
+        "description": "Raw redirect request log entry",
+        "properties": {
+          "domain": { "type": "string" },
+          "path": { "type": "string" },
+          "query": { "type": "string" },
+          "status_code": { "type": "integer" },
+          "target_url": { "type": "string" },
+          "client_ip": { "type": "string" },
+          "user_agent": { "type": "string" },
+          "referer": { "type": "string" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "StatusResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "example": "updated" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string", "description": "Error message" }
+        }
+      }
+    }
+  }
+}

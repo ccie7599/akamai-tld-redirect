@@ -1,0 +1,21 @@
+#cloud-config
+package_update: true
+package_upgrade: false
+
+packages:
+  - jq
+  - curl
+  - unzip
+  - htop
+  - net-tools
+
+users:
+  - name: tld
+    system: true
+    shell: /usr/sbin/nologin
+    no_create_home: true
+
+runcmd:
+  - mkdir -p /opt/tld-redirect/data
+  - chown tld:tld /opt/tld-redirect/data
+  - setcap cap_net_bind_service=+ep /opt/tld-redirect/tld-redirect 2>/dev/null || true

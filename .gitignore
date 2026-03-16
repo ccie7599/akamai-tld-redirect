@@ -1,0 +1,31 @@
+# Binaries
+bin/
+pnc-redirect
+*.exe
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# Terraform state and secrets
+*.tfstate
+*.tfstate.*
+*.tfvars
+!terraform.tfvars.example
+.terraform/
+.terraform.lock.hcl
+ds2.auto.tfvars
+
+# Certs
+*.pem
+*.key
+
+# Environment files
+env
+.env
+
+# OS
+.DS_Store
+tfplan*
+meeting-notes.md

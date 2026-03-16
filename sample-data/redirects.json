@@ -1,0 +1,81 @@
+[
+  {
+    "domain": "old-brand-financial.example.com",
+    "default_url": "https://www.consolidated-bank.example.com",
+    "status_code": 301,
+    "rules": [
+      {"path": "/mortgage", "target_url": "https://www.consolidated-bank.example.com/personal/home-lending", "status_code": 301, "priority": 10},
+      {"path": "/checking", "target_url": "https://www.consolidated-bank.example.com/personal/checking", "status_code": 301, "priority": 10},
+      {"path": "/online-banking", "target_url": "https://www.consolidated-bank.example.com/personal/digital-banking", "status_code": 301, "priority": 10}
+    ]
+  },
+  {
+    "domain": "legacy-trust-corp.example.com",
+    "default_url": "https://www.consolidated-bank.example.com",
+    "status_code": 301,
+    "rules": [
+      {"path": "/wealth", "target_url": "https://www.consolidated-bank.example.com/wealth-management", "status_code": 301, "priority": 10}
+    ]
+  },
+  {
+    "domain": "acquired-savings.example.com",
+    "default_url": "https://www.consolidated-bank.example.com",
+    "status_code": 301,
+    "rules": [
+      {"path": "/savings", "target_url": "https://www.consolidated-bank.example.com/personal/savings", "status_code": 301, "priority": 10},
+      {"path": "/cd-rates", "target_url": "https://www.consolidated-bank.example.com/personal/certificates-of-deposit", "status_code": 301, "priority": 10}
+    ]
+  },
+  {
+    "domain": "regional-commercial.example.com",
+    "default_url": "https://www.consolidated-bank.example.com",
+    "status_code": 301,
+    "rules": [
+      {"path": "/business", "target_url": "https://www.consolidated-bank.example.com/small-business", "status_code": 301, "priority": 10},
+      {"path": "/commercial", "target_url": "https://www.consolidated-bank.example.com/corporate", "status_code": 301, "priority": 10}
+    ]
+  },
+  {
+    "domain": "metro-financial-group.example.com",
+    "default_url": "https://www.consolidated-bank.example.com",
+    "status_code": 301,
+    "rules": []
+  },
+  {
+    "domain": "valley-first-bank.example.com",
+    "default_url": "https://www.consolidated-bank.example.com",
+    "status_code": 301,
+    "rules": [
+      {"path": "/locations", "target_url": "https://www.consolidated-bank.example.com/branch-locator", "status_code": 301, "priority": 10}
+    ]
+  },
+  {
+    "domain": "heritage-national.example.com",
+    "default_url": "https://www.consolidated-bank.example.com",
+    "status_code": 301,
+    "rules": []
+  },
+  {
+    "domain": "pioneer-community-bank.example.com",
+    "default_url": "https://www.consolidated-bank.example.com",
+    "status_code": 301,
+    "rules": [
+      {"path": "/auto-loans", "target_url": "https://www.consolidated-bank.example.com/personal/auto-loans", "status_code": 301, "priority": 10}
+    ]
+  },
+  {
+    "domain": "tri-state-banking.example.com",
+    "default_url": "https://www.consolidated-bank.example.com",
+    "status_code": 301,
+    "rules": []
+  },
+  {
+    "domain": "commonwealth-credit.example.com",
+    "default_url": "https://www.consolidated-bank.example.com",
+    "status_code": 301,
+    "rules": [
+      {"path": "/credit-cards", "target_url": "https://www.consolidated-bank.example.com/personal/credit-cards", "status_code": 301, "priority": 10},
+      {"path": "/rewards", "target_url": "https://www.consolidated-bank.example.com/personal/credit-cards/rewards", "status_code": 301, "priority": 5}
+    ]
+  }
+]

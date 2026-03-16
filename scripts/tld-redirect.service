@@ -1,0 +1,28 @@
+[Unit]
+Description=TLD Redirect Engine
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/tld-redirect
+ExecStart=/opt/tld-redirect/tld-redirect \
+  -tls \
+  -admin-domain redirects.connected-cloud.io \
+  -acme-email admin@connected-cloud.io \
+  -db /opt/tld-redirect/data/tld-redirect.db \
+  -cert-dir /opt/tld-redirect/data/certs \
+  -token ${TLD_ADMIN_TOKEN}
+EnvironmentFile=/opt/tld-redirect/env
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+# Security hardening
+NoNewPrivileges=false
+ProtectSystem=strict
+ReadWritePaths=/opt/tld-redirect/data
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Redirect Engine</title>
+    <link rel="stylesheet" href="/ui/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div id="auth-gate" class="auth-gate">
+        <div class="auth-card">
+            <svg width="40" height="40" viewBox="0 0 32 32" fill="none"><path d="M16 2L28 8V20L16 30L4 20V8L16 2Z" fill="#111" stroke="#4a9eff" stroke-width="1.5"/><path d="M10 16l4 4 8-8" stroke="#4a9eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <h1>Domain Redirect Engine</h1>
+            <p>Enter your admin token to continue.</p>
+            <input type="password" id="token-input" placeholder="Admin token" autofocus>
+            <button id="token-submit">Sign In</button>
+        </div>
+    </div>
+
+    <div id="app-shell" style="display:none">
+        <nav class="topnav">
+            <div class="nav-brand">
+                <svg width="28" height="28" viewBox="0 0 32 32" fill="none"><path d="M16 2L28 8V20L16 30L4 20V8L16 2Z" fill="#111" stroke="#4a9eff" stroke-width="1.5"/><path d="M10 16l4 4 8-8" stroke="#4a9eff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span>Redirect Engine</span>
+            </div>
+            <div class="nav-links">
+                <a href="#/domains" class="nav-link" data-route="domains">Domains</a>
+                <a href="#/analytics" class="nav-link" data-route="analytics">Analytics</a>
+                <a href="#/import" class="nav-link" data-route="import">Import</a>
+                <a href="#/docs" class="nav-link" data-route="docs">API Docs</a>
+            </div>
+            <div class="nav-stats" id="nav-stats"></div>
+        </nav>
+        <main class="content">
+            <div id="app"></div>
+        </main>
+    </div>
+
+    <div id="toast-container"></div>
+    <script src="/ui/js/app.js"></script>
+</body>
+</html>
