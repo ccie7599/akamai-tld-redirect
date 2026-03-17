@@ -423,7 +423,10 @@ func runDev(engine *redirect.Engine, apiHandler *api.Handler, token, adminAddr, 
 		Handler: adminRouter,
 	}
 
-	redirectSrv := server.NewRedirectServer(redirectAddr, engine)
+	redirectSrv := &http.Server{
+		Addr:    redirectAddr,
+		Handler: engine,
+	}
 
 	go func() {
 		log.Printf("admin server listening on %s (dev mode)", adminAddr)

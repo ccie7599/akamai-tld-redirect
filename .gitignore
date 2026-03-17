@@ -29,3 +29,7 @@ env
 .DS_Store
 tfplan*
 meeting-notes.md
+email-*.md
+update-*.md
+webex-*.md
+tests/load/results.json

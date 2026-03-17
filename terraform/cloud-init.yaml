@@ -1,9 +1,0 @@
-#cloud-config
-package_update: true
-packages:
-  - jq
-
-runcmd:
-  - mkdir -p /opt/tld-redirect/data
-  - useradd -r -s /usr/sbin/nologin tld || true
-  - setcap cap_net_bind_service=+ep /opt/tld-redirect/tld-redirect 2>/dev/null || true
