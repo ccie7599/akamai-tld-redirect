@@ -40,13 +40,30 @@
 
 ---
 
-## ADR-005: CertMagic with PG Storage and Control/Data Split
+## ADR-005: Certificate Storage — PG (current) vs HashiCorp Vault (production recommendation)
 
-**Decision**: Control plane provisions certs via CertMagic (Let's Encrypt HTTP-01). Data plane reads certs from PG — never initiates ACME.
+**Decision**: Current implementation stores certs in PostgreSQL via a `certmagic.Storage` adapter. For production deployments handling enterprise certificate inventory, HashiCorp Vault is the recommended storage backend.
 
-**Context**: With 2000+ domains, certs must be provisioned on-demand and shared across instances. CertMagic's default file storage doesn't work across multiple nodes.
+**Context**: With 2000+ domains, certs must be provisioned on-demand and shared across instances. CertMagic's default file storage doesn't work across multiple nodes. Certificate private keys are sensitive material that enterprises typically require to be managed by a dedicated secrets management system.
 
-**Rationale**: The `cert_store` table in PG implements `certmagic.Storage` (Lock via PG advisory locks, CRUD via simple queries). Control plane runs the full CertMagic provisioner; data plane instantiates CertMagic in loader-only mode (reads certs from PG, serves TLS, but never initiates ACME challenges). This prevents race conditions where multiple instances simultaneously attempt HTTP-01 challenges for the same domain.
+**Current implementation (POC / lower-grade production)**: The `cert_store` table in PG implements `certmagic.Storage` (Lock via PG advisory locks, CRUD via simple queries). Control plane runs the full CertMagic provisioner; data plane instantiates CertMagic in loader-only mode (reads certs from PG, serves TLS, but never initiates ACME challenges). This prevents race conditions where multiple instances simultaneously attempt HTTP-01 challenges for the same domain.
+
+This approach works and is operationally simple, but stores private key material alongside application data in the same database — acceptable for POC and lower-sensitivity production workloads, but not aligned with enterprise secret management practices.
+
+**Production recommendation — HashiCorp Vault**:
+
+For production deployments, implement a `certmagic.Storage` adapter backed by Vault's KV v2 secrets engine:
+
+- **Key path**: `secret/certs/{domain}/privkey`, `secret/certs/{domain}/cert`, `secret/certs/{domain}/chain`
+- **Locking**: Vault's system lock or Consul-backed distributed locks
+- **Access control**: Vault policies scoped per service — control plane gets read/write, data plane gets read-only
+- **Audit**: Vault's audit log provides a complete record of every cert read/write — critical for compliance
+- **Rotation**: Vault's lease/TTL mechanism can enforce cert rotation windows
+- **Encryption at rest**: Vault encrypts all stored secrets with its barrier key (AES-256-GCM)
+
+Implementation path: create `internal/certs/vault_storage.go` implementing `certmagic.Storage` against the Vault HTTP API or `hashicorp/vault/api` Go client. The `-cert-backend` flag would select between `pg` (current) and `vault` (with `-vault-addr`, `-vault-token` or `-vault-role` for AppRole auth).
+
+Most enterprises evaluating this solution already have Vault deployed. If they don't, the PG storage backend is a reasonable starting point that can be migrated to Vault later — the `certmagic.Storage` interface abstracts the backend completely.
 
 ---
 

@@ -58,7 +58,7 @@ See [docs/runbook.md](docs/runbook.md) for full operational procedures.
 | **Multi-region** | 2 regions, 2 data nodes per region, managed PG per region |
 | **Control/data separation** | Control plane failure doesn't impact redirect serving |
 | **Cross-region sync** | Object Storage (S3-compatible) replicates rules across regions in <10s |
-| **On-demand TLS** | CertMagic provisions Let's Encrypt certs for each domain automatically |
+| **On-demand TLS** | CertMagic provisions Let's Encrypt certs per domain; PG storage (current) or HashiCorp Vault (recommended for prod) |
 | **DS2 beacon telemetry** | Every redirect fires a beacon to Akamai DataStream 2 for edge-level observability |
 | **Analytics pipeline** | Async batch writes, hourly rollups, top paths/referers, inactive domain detection |
 | **API + UI** | Full REST API with OpenAPI spec; embedded SPA for browsing and management |
@@ -109,7 +109,8 @@ internal/
   analytics/pipeline.go     Async batch writer + 5-min rollup worker
   beacon/beacon.go          DS2 fire-and-forget HTTP beacon (4 workers)
   certs/certs.go            CertMagic provisioner (control) + loader (data)
-  certs/pg_storage.go       certmagic.Storage backed by PG advisory locks
+  certs/pg_storage.go       certmagic.Storage backed by PG (POC/lower-grade prod)
+  certs/vault_storage.go    certmagic.Storage backed by HashiCorp Vault (planned)
   sync/sync.go              S3 publish/poll with ETag-based change detection
   api/handlers.go           REST API with syncer integration
   api/middleware.go          Token auth, CORS, request logging

@@ -36,6 +36,7 @@ All configuration is via environment variables in `/opt/tld-redirect/env` on eac
 
 ## What's Not Done
 
+- **HashiCorp Vault for cert storage** — Current implementation stores TLS certs (including private keys) in PostgreSQL. This is functional but POC-grade for secret management. For production, implement the Vault storage adapter (see ADR-005 in DECISIONS.md). Most enterprise customers will require this.
 - **Production cert provisioning for redirect domains** — Control plane provisions certs on-demand when traffic arrives for a new domain. Customer's DNS must resolve to our NB IPs first.
 - **DNSSEC** — Not implemented. Customer should evaluate whether DNSSEC is required for their redirect domains.
 - **Monitoring/alerting** — No Prometheus/Grafana/PagerDuty integration. Recommend adding health check monitoring on the `/healthz` endpoints and NB status.
