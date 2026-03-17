@@ -63,6 +63,7 @@ See [docs/runbook.md](docs/runbook.md) for full operational procedures.
 | **Analytics pipeline** | Async batch writes, hourly rollups, top paths/referers, inactive domain detection |
 | **API + UI** | Full REST API with OpenAPI spec; embedded SPA for browsing and management |
 | **Priority path matching** | Rules sorted by priority; first match wins. Supports exact and prefix matching |
+| **Proven performance** | 23,779 req/sec, p50 2.78ms, p95 21ms, 100% success at 500 concurrent VUs ([test results](tests/load/README.md)) |
 
 ## Observability: DS2 Beacon Pattern
 
@@ -115,6 +116,19 @@ See [docs/akamai-integration.md](docs/akamai-integration.md) for notes on using 
 | **DS2 beacon property** | 1 | edge (global) | **PaaS** — Akamai manages edge, DataStream pipeline | Akamai |
 
 The PaaS components (PG, NodeBalancer, Object Storage) require no OS-level management — patching, failover, and backups are handled by the provider. The IaaS components (data plane, control plane) run a single Go binary managed via systemd, deployed with `scripts/deploy-multi.sh`. Operational procedures for the IaaS components are in [docs/runbook.md](docs/runbook.md).
+
+## Performance (Proven)
+
+Load tested with 1,610 domains and 500 concurrent users against a single-region NodeBalancer with 2 data plane instances. Full results and methodology in [tests/load/README.md](tests/load/README.md).
+
+| Metric | Value |
+|--------|-------|
+| Throughput | 23,779 req/sec |
+| Latency p50 | 2.78ms |
+| Latency p95 | 21.46ms |
+| Success rate | 100.00% |
+| Domains loaded | 1,610 |
+| Concurrent VUs | 500 |
 
 ## Projected Availability
 
