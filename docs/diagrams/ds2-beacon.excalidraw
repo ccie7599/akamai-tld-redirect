@@ -10,16 +10,16 @@
       "y": 10,
       "width": 540,
       "height": 35,
-      "text": "DS2 Beacon — Observability via Akamai DataStream 2",
+      "text": "DS2 Beacon \u2014 Observability via Akamai DataStream 2",
       "fontSize": 22,
-      "fontFamily": 1,
+      "fontFamily": 3,
       "textAlign": "center",
       "verticalAlign": "middle",
       "strokeColor": "#343a40",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300001,
@@ -31,7 +31,7 @@
       "link": null,
       "locked": false,
       "containerId": null,
-      "originalText": "DS2 Beacon — Observability via Akamai DataStream 2",
+      "originalText": "DS2 Beacon \u2014 Observability via Akamai DataStream 2",
       "lineHeight": 1.25
     },
     {
@@ -44,8 +44,8 @@
       "strokeColor": "#2f9e44",
       "backgroundColor": "#b2f2bb",
       "fillStyle": "solid",
-      "strokeWidth": 2,
-      "roughness": 1,
+      "strokeWidth": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300002,
@@ -56,7 +56,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "ds2-dp-lbl",
@@ -67,14 +69,14 @@
       "height": 25,
       "text": "Data Plane",
       "fontSize": 18,
-      "fontFamily": 1,
+      "fontFamily": 3,
       "textAlign": "center",
       "verticalAlign": "top",
       "strokeColor": "#2f9e44",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300003,
@@ -100,7 +102,7 @@
       "backgroundColor": "#d8f5a2",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300004,
@@ -111,7 +113,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "ds2-dp-inner-lbl",
@@ -122,14 +126,14 @@
       "height": 30,
       "text": "Redirect Engine",
       "fontSize": 14,
-      "fontFamily": 1,
+      "fontFamily": 3,
       "textAlign": "center",
       "verticalAlign": "middle",
       "strokeColor": "#2f9e44",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300005,
@@ -154,8 +158,8 @@
       "strokeColor": "#343a40",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "strokeWidth": 2,
-      "roughness": 1,
+      "strokeWidth": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300006,
@@ -166,12 +170,24 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [60, 0]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          60,
+          0
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
       "startArrowhead": null,
-      "endArrowhead": "arrow"
+      "endArrowhead": "arrow",
+      "roundness": {
+        "type": 2
+      }
     },
     {
       "id": "ds2-buf",
@@ -183,8 +199,8 @@
       "strokeColor": "#495057",
       "backgroundColor": "#e9ecef",
       "fillStyle": "solid",
-      "strokeWidth": 2,
-      "roughness": 1,
+      "strokeWidth": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300007,
@@ -195,7 +211,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "ds2-buf-pipe-1",
@@ -219,7 +237,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "ds2-buf-pipe-2",
@@ -243,7 +263,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "ds2-buf-pipe-3",
@@ -267,7 +289,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "ds2-buf-pipe-4",
@@ -291,7 +315,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "ds2-buf-pipe-5",
@@ -315,7 +341,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "ds2-buf-lbl",
@@ -333,7 +361,7 @@
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300013,
@@ -364,7 +392,7 @@
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300014,
@@ -389,8 +417,8 @@
       "strokeColor": "#343a40",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "strokeWidth": 2,
-      "roughness": 1,
+      "strokeWidth": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300015,
@@ -401,12 +429,24 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [52, 0]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          52,
+          0
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
       "startArrowhead": null,
-      "endArrowhead": "arrow"
+      "endArrowhead": "arrow",
+      "roundness": {
+        "type": 2
+      }
     },
     {
       "id": "ds2-sender",
@@ -418,8 +458,8 @@
       "strokeColor": "#2f9e44",
       "backgroundColor": "#b2f2bb",
       "fillStyle": "solid",
-      "strokeWidth": 2,
-      "roughness": 1,
+      "strokeWidth": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300016,
@@ -430,7 +470,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "ds2-sender-lbl",
@@ -439,16 +481,16 @@
       "y": 95,
       "width": 140,
       "height": 70,
-      "text": "Beacon Sender\n──────\n4 workers\nHTTP/2 pooled",
+      "text": "Beacon Sender\n\u2500\u2500\u2500\u2500\u2500\u2500\n4 workers\nHTTP/2 pooled",
       "fontSize": 13,
-      "fontFamily": 1,
+      "fontFamily": 3,
       "textAlign": "center",
       "verticalAlign": "middle",
       "strokeColor": "#2f9e44",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300017,
@@ -460,7 +502,7 @@
       "link": null,
       "locked": false,
       "containerId": null,
-      "originalText": "Beacon Sender\n──────\n4 workers\nHTTP/2 pooled",
+      "originalText": "Beacon Sender\n\u2500\u2500\u2500\u2500\u2500\u2500\n4 workers\nHTTP/2 pooled",
       "lineHeight": 1.25
     },
     {
@@ -473,8 +515,8 @@
       "strokeColor": "#e03131",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "strokeWidth": 2,
-      "roughness": 1,
+      "strokeWidth": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300018,
@@ -485,12 +527,24 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [76, 0]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          76,
+          0
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
       "startArrowhead": null,
-      "endArrowhead": "arrow"
+      "endArrowhead": "arrow",
+      "roundness": {
+        "type": 2
+      }
     },
     {
       "id": "ds2-arrow-to-edge-lbl",
@@ -508,7 +562,7 @@
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300019,
@@ -533,8 +587,8 @@
       "strokeColor": "#e03131",
       "backgroundColor": "#ffc9c9",
       "fillStyle": "solid",
-      "strokeWidth": 2,
-      "roughness": 1,
+      "strokeWidth": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300020,
@@ -545,7 +599,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "ds2-edge-lbl",
@@ -556,14 +612,14 @@
       "height": 25,
       "text": "Akamai Edge Property",
       "fontSize": 15,
-      "fontFamily": 1,
+      "fontFamily": 3,
       "textAlign": "center",
       "verticalAlign": "top",
       "strokeColor": "#e03131",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300021,
@@ -600,7 +656,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "ds2-edge-inner-lbl",
@@ -618,7 +676,7 @@
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300023,
@@ -643,8 +701,8 @@
       "strokeColor": "#e03131",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "strokeWidth": 2,
-      "roughness": 1,
+      "strokeWidth": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300024,
@@ -655,12 +713,24 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 50]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          50
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
       "startArrowhead": null,
-      "endArrowhead": "arrow"
+      "endArrowhead": "arrow",
+      "roundness": {
+        "type": 2
+      }
     },
     {
       "id": "ds2-arrow-to-ds2-lbl",
@@ -678,7 +748,7 @@
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300025,
@@ -703,8 +773,8 @@
       "strokeColor": "#e03131",
       "backgroundColor": "#ffc9c9",
       "fillStyle": "solid",
-      "strokeWidth": 2,
-      "roughness": 1,
+      "strokeWidth": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300026,
@@ -715,7 +785,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "ds2-datastream-lbl",
@@ -726,14 +798,14 @@
       "height": 35,
       "text": "DataStream 2",
       "fontSize": 18,
-      "fontFamily": 1,
+      "fontFamily": 3,
       "textAlign": "center",
       "verticalAlign": "middle",
       "strokeColor": "#e03131",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300027,
@@ -758,8 +830,8 @@
       "strokeColor": "#e03131",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "strokeWidth": 2,
-      "roughness": 1,
+      "strokeWidth": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300028,
@@ -770,12 +842,24 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 50]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          50
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
       "startArrowhead": null,
-      "endArrowhead": "arrow"
+      "endArrowhead": "arrow",
+      "roundness": {
+        "type": 2
+      }
     },
     {
       "id": "ds2-arrow-to-webhook-lbl",
@@ -793,7 +877,7 @@
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300029,
@@ -818,8 +902,8 @@
       "strokeColor": "#f08c00",
       "backgroundColor": "#fff3bf",
       "fillStyle": "solid",
-      "strokeWidth": 2,
-      "roughness": 1,
+      "strokeWidth": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300030,
@@ -830,7 +914,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "ds2-webhook-lbl",
@@ -839,16 +925,16 @@
       "y": 378,
       "width": 220,
       "height": 65,
-      "text": "Webhook Endpoint\n──────────\nClickHouse / Splunk / S3",
+      "text": "Webhook Endpoint\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nClickHouse / Splunk / S3",
       "fontSize": 14,
-      "fontFamily": 1,
+      "fontFamily": 3,
       "textAlign": "center",
       "verticalAlign": "middle",
       "strokeColor": "#f08c00",
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300031,
@@ -860,7 +946,7 @@
       "link": null,
       "locked": false,
       "containerId": null,
-      "originalText": "Webhook Endpoint\n──────────\nClickHouse / Splunk / S3",
+      "originalText": "Webhook Endpoint\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nClickHouse / Splunk / S3",
       "lineHeight": 1.25
     },
     {
@@ -885,7 +971,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "ds2-note-lbl",
@@ -903,7 +991,7 @@
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300041,
@@ -940,7 +1028,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "ds2-flow-note-lbl",
@@ -958,7 +1048,7 @@
       "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 1,
-      "roughness": 1,
+      "roughness": 0,
       "opacity": 100,
       "angle": 0,
       "seed": 300051,

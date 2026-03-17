@@ -9,119 +9,112 @@
 </style></defs>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <g transform="translate(20.00,30.00)">
-<text x="550.00" y="36.50" font-family="Virgil, Segoe UI Emoji, cursive" font-size="24" fill="#343a40" text-anchor="middle"><tspan x="550.00" dy="0">Request Flow — TLD Redirect with DS2 Beacon</tspan></text>
+<text x="550.00" y="36.50" font-family="Cascadia, Fira Code, monospace" font-size="24" fill="#343a40" text-anchor="middle"><tspan x="550.00" dy="0">Request Flow — TLD Redirect with DS2 Beacon</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<path d="M20.74 80.95 L148.37 79.72 L148.02 151.02 L19.13 151.69" stroke="none" fill="#e9ecef"/>
-<path d="M20.40 80.88 C57.48 77.68,97.92 80.65,151.48 81.89 M20.59 79.25 C49.13 81.80,77.12 82.14,150.98 79.68 M151.92 79.82 C150.95 100.83,151.51 122.05,148.33 151.27 M149.14 80.59 C150.20 99.91,150.54 119.86,149.18 150.45 M150.43 151.54 C109.27 150.93,65.03 152.91,20.99 150.50 M149.80 150.31 C115.25 148.05,79.37 148.63,20.82 149.95 M19.73 149.85 C22.30 132.17,20.16 118.38,19.25 79.43 M20.82 149.60 C19.40 123.29,19.30 95.81,20.00 80.99" stroke="#495057" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="20" y="80" width="130" height="70" rx="17.5" fill="#e9ecef" stroke="none"/>
+<rect x="20" y="80" width="130" height="70" rx="17.5" fill="none" stroke="#495057" stroke-width="1"/>
 </g>
 <g transform="translate(20.00,30.00)">
-<text x="85.00" y="111.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="16" fill="#495057" text-anchor="middle"><tspan x="85.00" dy="0">Client</tspan><tspan x="85.00" dy="20">(browser)</tspan></text>
+<text x="85.00" y="111.00" font-family="Cascadia, Fira Code, monospace" font-size="16" fill="#495057" text-anchor="middle"><tspan x="85.00" dy="0">Client</tspan><tspan x="85.00" dy="20">(browser)</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<path d="M150.12 98.80 C179.68 101.68,202.47 98.86,237.89 98.67 M151.29 99.78 C173.95 100.25,197.18 99.45,237.82 99.19" stroke="#343a40" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M224.89 106.89 C230.41 106.25,232.08 103.89,238.40 101.43 M225.33 107.68 C229.59 104.27,235.70 101.45,237.84 100.35" stroke="#343a40" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M237.88 99.39 C235.62 98.59,229.50 96.22,225.41 93.93 M238.32 100.18 C232.21 96.52,227.96 93.70,224.85 92.85" stroke="#343a40" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M152.00 100.00 C177.73 100.00,203.45 100.00,238.00 100.00 M152.00 100.00 C174.68 100.00,197.37 100.00,238.00 100.00" stroke="#343a40" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M225.01 107.50 L238.00 100.00 L225.01 92.50" stroke="#343a40" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(20.00,30.00)">
 <text x="195.00" y="91.50" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#343a40" text-anchor="middle"><tspan x="195.00" dy="0">A record</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<path d="M238.34 68.64 L388.55 68.97 L389.03 151.95 L238.83 149.82" stroke="none" fill="#ffc9c9"/>
-<path d="M239.83 70.73 C286.19 69.98,331.65 69.37,388.31 69.45 M240.00 70.31 C286.12 68.66,331.93 68.72,390.66 70.69 M390.07 70.82 C391.44 100.31,390.77 126.61,389.89 151.80 M390.33 69.39 C390.62 99.24,389.05 127.50,390.81 149.86 M390.64 150.69 C333.45 150.26,274.42 150.06,240.34 148.88 M390.03 149.74 C333.99 149.61,278.73 149.10,240.58 150.12 M240.85 148.72 C238.69 119.91,241.62 86.80,241.62 68.61 M239.69 149.60 C239.89 130.46,239.81 111.78,239.76 70.94" stroke="#e03131" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="240" y="70" width="150" height="80" rx="20" fill="#ffc9c9" stroke="none"/>
+<rect x="240" y="70" width="150" height="80" rx="20" fill="none" stroke="#e03131" stroke-width="1"/>
 </g>
 <g transform="translate(20.00,30.00)">
-<text x="315.50" y="106.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="16" fill="#e03131" text-anchor="middle"><tspan x="315.50" dy="0">Akamai</tspan><tspan x="315.50" dy="20">Edge DNS</tspan></text>
+<text x="315.50" y="106.00" font-family="Cascadia, Fira Code, monospace" font-size="16" fill="#e03131" text-anchor="middle"><tspan x="315.50" dy="0">Akamai</tspan><tspan x="315.50" dy="20">Edge DNS</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<path d="M393.55 108.66 C418.40 111.64,444.24 109.24,478.72 110.24 M392.70 110.84 C421.05 109.74,452.22 110.66,477.50 110.20" stroke="#343a40" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M464.47 116.79 C469.40 116.64,473.35 111.59,479.02 109.60 M464.88 116.97 C469.49 115.84,473.05 113.68,477.60 109.61" stroke="#343a40" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M477.46 109.29 C474.61 109.18,470.77 104.14,466.03 102.10 M477.87 109.47 C475.09 108.55,471.26 106.38,464.61 102.11" stroke="#343a40" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M392.00 110.00 C417.73 110.00,443.45 110.00,478.00 110.00 M392.00 110.00 C422.03 110.00,452.06 110.00,478.00 110.00" stroke="#343a40" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M465.01 117.50 L478.00 110.00 L465.01 102.50" stroke="#343a40" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(20.00,30.00)">
 <text x="435.50" y="101.50" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#343a40" text-anchor="middle"><tspan x="435.50" dy="0">TCP connect</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<path d="M479.94 70.33 L628.73 68.21 L630.05 148.89 L478.53 151.95" stroke="none" fill="#e9ecef"/>
-<path d="M479.26 70.59 C524.91 69.41,569.41 69.23,629.13 71.02 M479.40 69.37 C538.69 68.32,597.90 70.11,630.34 69.70 M628.22 71.82 C631.96 90.83,630.05 107.25,631.46 148.32 M629.52 70.20 C630.59 89.68,631.12 107.38,630.44 149.27 M630.85 149.84 C594.17 149.42,552.88 151.05,479.68 151.27 M630.25 149.16 C588.09 149.35,546.82 149.76,480.33 150.29 M481.97 151.60 C480.61 122.02,480.61 95.96,479.98 71.79 M480.56 149.59 C480.01 127.44,479.96 103.37,479.52 70.90" stroke="#495057" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="480" y="70" width="150" height="80" rx="20" fill="#e9ecef" stroke="none"/>
+<rect x="480" y="70" width="150" height="80" rx="20" fill="none" stroke="#495057" stroke-width="1"/>
 </g>
 <g transform="translate(20.00,30.00)">
-<text x="555.00" y="106.50" font-family="Virgil, Segoe UI Emoji, cursive" font-size="14" fill="#495057" text-anchor="middle"><tspan x="555.00" dy="0">NodeBalancer</tspan><tspan x="555.00" dy="17.5">(TCP passthru)</tspan></text>
+<text x="555.00" y="106.50" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#495057" text-anchor="middle"><tspan x="555.00" dy="0">NodeBalancer</tspan><tspan x="555.00" dy="17.5">(TCP passthru)</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<path d="M632.98 108.51 C657.13 107.59,682.00 109.62,719.55 111.81 M632.10 109.90 C652.96 111.23,672.85 109.87,717.18 109.21" stroke="#343a40" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M704.04 116.68 C708.54 114.02,711.76 112.30,716.64 110.78 M704.44 117.77 C710.33 114.68,713.95 111.66,717.36 110.37" stroke="#343a40" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M717.03 109.18 C713.75 106.78,709.19 105.05,703.65 103.28 M717.43 110.27 C713.72 107.31,707.72 104.29,704.37 102.87" stroke="#343a40" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M632.00 110.00 C657.73 110.00,683.46 110.00,718.00 110.00 M632.00 110.00 C652.17 110.00,672.35 110.00,718.00 110.00" stroke="#343a40" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M705.01 117.50 L718.00 110.00 L705.01 102.50" stroke="#343a40" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(20.00,30.00)">
 <text x="674.50" y="101.50" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#343a40" text-anchor="middle"><tspan x="674.50" dy="0">TLS + HTTP</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<path d="M721.54 63.01 L898.92 66.46 L901.06 154.83 L718.24 155.08" stroke="none" fill="#b2f2bb"/>
-<path d="M718.69 65.44 C772.61 67.11,829.13 67.36,899.96 63.59 M720.81 65.43 C769.57 64.93,820.50 64.43,900.02 65.71 M900.36 63.82 C898.49 91.42,899.35 121.02,899.02 153.84 M900.71 66.00 C900.98 92.21,899.61 120.43,900.07 155.68 M901.06 153.98 C841.45 157.79,786.45 157.24,719.03 154.66 M900.48 155.59 C830.81 156.22,764.14 155.54,720.09 155.45 M719.09 155.47 C720.92 130.34,717.99 104.54,718.35 65.96 M719.43 154.58 C720.56 123.96,720.53 93.03,719.28 65.85" stroke="#2f9e44" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="720" y="65" width="180" height="90" rx="22.5" fill="#b2f2bb" stroke="none"/>
+<rect x="720" y="65" width="180" height="90" rx="22.5" fill="none" stroke="#2f9e44" stroke-width="1"/>
 </g>
 <g transform="translate(20.00,30.00)">
-<text x="810.00" y="97.75" font-family="Virgil, Segoe UI Emoji, cursive" font-size="14" fill="#2f9e44" text-anchor="middle"><tspan x="810.00" dy="0">Data Plane</tspan><tspan x="810.00" dy="17.5">──────</tspan><tspan x="810.00" dy="17.5">in-memory lookup</tspan></text>
+<text x="810.00" y="97.75" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#2f9e44" text-anchor="middle"><tspan x="810.00" dy="0">Data Plane</tspan><tspan x="810.00" dy="17.5">──────</tspan><tspan x="810.00" dy="17.5">in-memory lookup</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<path d="M810.26 58.97 C700.97 49.24,594.64 41.81,448.97 29.61 M809.69 60.60 C695.09 48.20,580.09 38.83,450.54 30.14 M449.65 29.58 C327.23 46.27,203.26 63.52,91.13 80.69 M449.56 29.62 C361.52 42.14,273.64 54.55,90.55 79.61" stroke="#2f9e44" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M100.43 69.85 C96.87 72.91,94.93 76.51,89.26 78.96 M102.32 70.35 C99.13 72.62,95.36 76.02,90.61 79.63" stroke="#2f9e44" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M88.60 79.07 C92.76 81.10,98.53 83.64,103.16 84.60 M90.48 79.56 C93.88 80.87,96.68 83.35,104.51 85.27" stroke="#2f9e44" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M810.00 60.00 C750.00 55.00,570.00 26.67,450.00 30.00 C330.00 33.33,150.00 71.67,90.00 80.00 M810.00 60.00 C750.00 55.00,570.00 26.67,450.00 30.00 C330.00 33.33,150.00 71.67,90.00 80.00" stroke="#2f9e44" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M101.84 70.78 L90.00 80.00 L103.90 85.64" stroke="#2f9e44" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(20.00,30.00)">
 <text x="450.00" y="32.25" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#2f9e44" text-anchor="middle"><tspan x="450.00" dy="0">301 → target URL</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<text x="470.00" y="192.75" font-family="Virgil, Segoe UI Emoji, cursive" font-size="14" fill="#868e96" text-anchor="middle"><tspan x="470.00" dy="0">─ ─ ─ ─ ─ ─ ─ ─ ─   async (non-blocking)  ─ ─ ─ ─ ─ ─ ─ ─ ─</tspan></text>
+<text x="470.00" y="192.75" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#868e96" text-anchor="middle"><tspan x="470.00" dy="0">─ ─ ─ ─ ─ ─ ─ ─ ─   async (non-blocking)  ─ ─ ─ ─ ─ ─ ─ ─ ─</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<path d="M848.69 158.19 C872.05 182.97,896.97 209.90,930.40 246.34 M849.27 156.28 C867.98 178.21,886.66 198.14,930.95 247.98" stroke="#e03131" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M916.08 243.46 C918.97 242.96,923.94 246.37,930.78 245.93 M916.06 242.08 C920.64 244.33,926.72 246.45,930.69 247.20" stroke="#e03131" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M930.31 248.18 C927.92 241.84,927.72 239.43,927.76 231.24 M930.30 246.80 C928.77 241.93,928.61 237.02,927.66 232.51" stroke="#e03131" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M850.00 157.00 C873.94 183.93,897.87 210.86,930.00 247.00 M850.00 157.00 C868.14 177.41,886.28 197.82,930.00 247.00" stroke="#e03131" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M915.76 242.27 L930.00 247.00 L926.98 232.31" stroke="#e03131" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(20.00,30.00)">
 <text x="915.00" y="203.50" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#e03131" text-anchor="middle"><tspan x="915.00" dy="0">fire &amp; forget</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<path d="M871.13 248.81 L1068.33 249.76 L1071.34 331.93 L870.57 329.87" stroke="none" fill="#ffc9c9"/>
-<path d="M870.37 249.21 C931.54 251.00,988.23 249.38,1068.93 250.11 M869.97 249.83 C924.45 252.20,978.19 252.54,1069.81 250.44 M1070.19 251.08 C1067.44 271.03,1070.52 292.33,1071.53 331.02 M1070.39 250.81 C1070.01 276.63,1069.85 301.00,1070.73 330.85 M1070.48 329.15 C1020.08 332.69,966.43 331.40,871.40 328.22 M1070.89 330.26 C996.86 330.66,925.76 331.46,869.59 329.85 M868.60 329.94 C868.65 309.87,870.13 287.74,871.68 250.11 M870.40 329.57 C870.13 311.62,870.66 294.03,870.25 250.74" stroke="#e03131" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="870" y="250" width="200" height="80" rx="20" fill="#ffc9c9" stroke="none"/>
+<rect x="870" y="250" width="200" height="80" rx="20" fill="none" stroke="#e03131" stroke-width="1"/>
 </g>
 <g transform="translate(20.00,30.00)">
-<text x="970.00" y="286.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="16" fill="#e03131" text-anchor="middle"><tspan x="970.00" dy="0">Akamai Edge</tspan><tspan x="970.00" dy="20">(DS2 beacon)</tspan></text>
+<text x="970.00" y="286.00" font-family="Cascadia, Fira Code, monospace" font-size="16" fill="#e03131" text-anchor="middle"><tspan x="970.00" dy="0">Akamai Edge</tspan><tspan x="970.00" dy="20">(DS2 beacon)</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<path d="M808.12 158.04 C781.62 195.58,751.72 234.90,711.23 287.91 M810.67 157.34 C777.23 197.76,747.15 237.58,710.63 287.00" stroke="#f08c00" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M711.86 273.21 C712.22 276.34,711.61 280.11,711.40 287.11 M711.83 272.73 C711.12 275.49,710.50 279.37,710.45 286.46" stroke="#f08c00" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M709.89 288.08 C715.15 284.94,719.29 282.53,725.27 281.38 M709.85 287.60 C712.99 285.41,716.29 284.19,724.31 280.73" stroke="#f08c00" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M810.00 157.00 C780.08 195.90,750.15 234.80,710.00 287.00 M810.00 157.00 C778.78 197.58,747.57 238.16,710.00 287.00" stroke="#f08c00" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M711.98 272.13 L710.00 287.00 L723.87 281.28" stroke="#f08c00" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(20.00,30.00)">
 <text x="755.00" y="243.50" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#f08c00" text-anchor="middle"><tspan x="755.00" dy="0">batch insert (async)</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<path d="M618.73 290.49 L798.51 289.00 L798.36 358.87 L620.27 362.00" stroke="none" fill="#fff3bf"/>
-<path d="M619.84 288.97 C674.46 290.29,727.87 288.93,799.64 291.69 M619.37 290.87 C684.25 288.41,748.55 288.50,799.47 289.50 M798.34 288.08 C798.04 314.21,799.89 338.29,799.10 361.54 M799.58 289.61 C800.46 317.10,800.39 344.93,800.35 360.26 M800.75 358.21 C744.17 362.02,685.22 362.41,620.90 360.41 M799.21 359.72 C753.03 362.53,704.22 362.32,619.30 360.00 M619.72 358.81 C619.02 344.05,621.57 331.05,620.05 289.28 M619.27 359.56 C618.74 341.36,619.29 321.12,620.01 290.69" stroke="#f08c00" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="620" y="290" width="180" height="70" rx="17.5" fill="#fff3bf" stroke="none"/>
+<rect x="620" y="290" width="180" height="70" rx="17.5" fill="none" stroke="#f08c00" stroke-width="1"/>
 </g>
 <g transform="translate(20.00,30.00)">
-<text x="710.00" y="331.75" font-family="Virgil, Segoe UI Emoji, cursive" font-size="18" fill="#f08c00" text-anchor="middle"><tspan x="710.00" dy="0">PostgreSQL</tspan></text>
+<text x="710.00" y="331.75" font-family="Cascadia, Fira Code, monospace" font-size="18" fill="#f08c00" text-anchor="middle"><tspan x="710.00" dy="0">PostgreSQL</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<path d="M971.55 332.90 C970.60 352.93,969.66 374.72,968.05 400.48 M970.08 331.40 C969.45 359.32,971.17 388.11,970.31 401.01" stroke="#e03131" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M961.96 389.98 C964.73 393.17,966.24 396.70,969.02 403.28 M961.91 388.90 C964.32 393.91,967.13 398.23,970.21 402.22" stroke="#e03131" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M969.46 402.97 C972.25 398.38,973.76 394.12,976.52 390.29 M969.41 401.89 C971.96 398.26,974.77 393.93,977.71 389.23" stroke="#e03131" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M970.00 332.00 C970.00 352.95,970.00 373.89,970.00 402.00 M970.00 332.00 C970.00 359.83,970.00 387.66,970.00 402.00" stroke="#e03131" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M962.50 389.01 L970.00 402.00 L977.50 389.01" stroke="#e03131" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(20.00,30.00)">
 <text x="1042.00" y="368.50" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#e03131" text-anchor="middle"><tspan x="1042.00" dy="0">JSON batch ~30s</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<path d="M870.33 403.18 L1068.69 403.24 L1069.37 474.81 L869.97 475.13" stroke="none" fill="#ffc9c9"/>
-<path d="M869.34 403.95 C929.24 404.26,991.41 407.01,1070.42 404.34 M870.70 404.93 C918.17 403.24,965.34 404.88,1069.24 405.46 M1070.49 404.08 C1068.54 421.03,1069.16 432.53,1070.66 473.06 M1070.77 405.41 C1070.31 423.81,1070.34 442.34,1069.98 474.66 M1070.86 476.22 C995.22 476.15,918.56 474.54,870.22 473.92 M1069.50 474.23 C996.56 473.81,921.37 474.45,869.15 475.15 M870.84 476.69 C870.83 450.63,870.45 426.15,868.41 403.46 M870.14 474.55 C870.71 451.89,871.29 428.81,869.78 405.64" stroke="#e03131" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="870" y="405" width="200" height="70" rx="17.5" fill="#ffc9c9" stroke="none"/>
+<rect x="870" y="405" width="200" height="70" rx="17.5" fill="none" stroke="#e03131" stroke-width="1"/>
 </g>
 <g transform="translate(20.00,30.00)">
-<text x="970.00" y="436.00" font-family="Virgil, Segoe UI Emoji, cursive" font-size="16" fill="#e03131" text-anchor="middle"><tspan x="970.00" dy="0">DS2 Webhook</tspan><tspan x="970.00" dy="20">Endpoint</tspan></text>
+<text x="970.00" y="436.00" font-family="Cascadia, Fira Code, monospace" font-size="16" fill="#e03131" text-anchor="middle"><tspan x="970.00" dy="0">DS2 Webhook</tspan><tspan x="970.00" dy="20">Endpoint</tspan></text>
 </g>
 <g transform="translate(20.00,30.00)">
-<path d="M19.93 218.97 L268.10 220.54 L269.66 301.91 L18.30 299.92" stroke="none" fill="#f8f9fa"/>
-<path d="M20.80 221.23 C93.55 218.20,168.72 219.03,269.45 220.65 M19.95 219.43 C77.37 220.73,136.97 221.29,270.76 220.23 M270.32 221.34 C269.04 247.75,271.88 276.04,269.17 300.24 M270.45 220.22 C269.41 242.03,270.64 266.50,270.64 299.83 M270.35 301.17 C190.18 301.26,108.88 302.34,19.00 300.95 M269.96 300.69 C182.39 298.22,92.97 298.43,20.41 299.63 M20.35 301.15 C21.01 273.82,21.04 246.67,21.74 221.60 M19.10 299.54 C20.38 282.78,19.51 268.27,20.74 220.54" stroke="#868e96" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<rect x="20" y="220" width="250" height="80" rx="20" fill="#f8f9fa" stroke="none"/>
+<rect x="20" y="220" width="250" height="80" rx="20" fill="none" stroke="#868e96" stroke-width="1"/>
 </g>
 <g transform="translate(20.00,30.00)">
 <text x="35.00" y="248.13" font-family="Cascadia, Fira Code, monospace" font-size="13" fill="#868e96" text-anchor="start"><tspan x="35.00" dy="0">Redirect latency: ~2ms</tspan><tspan x="35.00" dy="16.25">(in-memory map, no DB hit</tspan><tspan x="35.00" dy="16.25">on the hot path)</tspan></text>
