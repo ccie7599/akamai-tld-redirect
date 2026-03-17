@@ -4,7 +4,7 @@
 
 The redirect engine currently integrates with Akamai at two points:
 
-1. **Akamai Edge DNS** — A records for apex domains point to NodeBalancer IPs; control plane hostnames resolve via Edge DNS (100% SLA)
+1. **DNS** — A records for apex domains point to NodeBalancer IPs. This reference implementation uses Akamai Edge DNS (100% SLA), but any DNS provider works — the redirect engine is DNS-provider agnostic
 2. **DataStream 2** — beacon telemetry for per-redirect observability (see [ds2-beacon.md](ds2-beacon.md))
 
 ## Hybrid WAF Protection with App & API Protector

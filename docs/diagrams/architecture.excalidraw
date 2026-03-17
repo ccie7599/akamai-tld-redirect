@@ -10,7 +10,7 @@
       "y": 10,
       "width": 520,
       "height": 35,
-      "text": "Multi-Region Architecture — PNC Redirect Engine",
+      "text": "Multi-Region Architecture \u2014 PNC Redirect Engine",
       "fontSize": 28,
       "fontFamily": 1,
       "textAlign": "center",
@@ -31,7 +31,7 @@
       "link": null,
       "locked": false,
       "containerId": null,
-      "originalText": "Multi-Region Architecture — PNC Redirect Engine",
+      "originalText": "Multi-Region Architecture \u2014 PNC Redirect Engine",
       "lineHeight": 1.25
     },
     {
@@ -53,12 +53,17 @@
       "versionNonce": 100002,
       "isDeleted": false,
       "boundElements": [
-        {"id": "arrow-client-dns", "type": "arrow"}
+        {
+          "id": "arrow-client-dns",
+          "type": "arrow"
+        }
       ],
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "client-label",
@@ -110,23 +115,34 @@
       "versionNonce": 100004,
       "isDeleted": false,
       "boundElements": [
-        {"id": "arrow-client-dns", "type": "arrow"},
-        {"id": "arrow-dns-nb-left", "type": "arrow"},
-        {"id": "arrow-dns-nb-right", "type": "arrow"}
+        {
+          "id": "arrow-client-dns",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow-dns-nb-left",
+          "type": "arrow"
+        },
+        {
+          "id": "arrow-dns-nb-right",
+          "type": "arrow"
+        }
       ],
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "dns-label",
       "type": "text",
       "x": 470,
       "y": 180,
-      "width": 220,
+      "width": 350,
       "height": 40,
-      "text": "Akamai Edge DNS\n(GTM failover)",
+      "text": "DNS Provider\n(any \u2014 Akamai Edge DNS in this ref)\n(GTM failover)",
       "fontSize": 18,
       "fontFamily": 1,
       "textAlign": "center",
@@ -172,10 +188,27 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 46]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          46
+        ]
+      ],
       "lastCommittedPoint": null,
-      "startBinding": {"elementId": "client-box", "focus": 0, "gap": 2},
-      "endBinding": {"elementId": "dns-box", "focus": 0, "gap": 2},
+      "startBinding": {
+        "elementId": "client-box",
+        "focus": 0,
+        "gap": 2
+      },
+      "endBinding": {
+        "elementId": "dns-box",
+        "focus": 0,
+        "gap": 2
+      },
       "startArrowhead": null,
       "endArrowhead": "arrow"
     },
@@ -201,7 +234,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "region-left-label",
@@ -256,7 +291,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "cp-left-label",
@@ -265,7 +302,7 @@
       "y": 340,
       "width": 160,
       "height": 80,
-      "text": "Control Plane\n─────────\nAdmin API\nCert Mgmt · UI",
+      "text": "Control Plane\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nAdmin API\nCert Mgmt \u00b7 UI",
       "fontSize": 14,
       "fontFamily": 1,
       "textAlign": "center",
@@ -286,7 +323,7 @@
       "link": null,
       "locked": false,
       "containerId": null,
-      "originalText": "Control Plane\n─────────\nAdmin API\nCert Mgmt · UI",
+      "originalText": "Control Plane\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nAdmin API\nCert Mgmt \u00b7 UI",
       "lineHeight": 1.25
     },
     {
@@ -308,12 +345,17 @@
       "versionNonce": 100014,
       "isDeleted": false,
       "boundElements": [
-        {"id": "arrow-dns-nb-left", "type": "arrow"}
+        {
+          "id": "arrow-dns-nb-left",
+          "type": "arrow"
+        }
       ],
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "nb-left-label",
@@ -368,7 +410,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "dp-left-1-label",
@@ -423,7 +467,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "dp-left-2-label",
@@ -478,7 +524,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [-30, 36]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -30,
+          36
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -507,7 +562,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [40, 36]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          40,
+          36
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -536,7 +600,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "pg-left-label",
@@ -545,7 +611,7 @@
       "y": 575,
       "width": 240,
       "height": 50,
-      "text": "PG DBaaS (3-node)\nPrimary · Replica · Replica",
+      "text": "PG DBaaS (3-node)\nPrimary \u00b7 Replica \u00b7 Replica",
       "fontSize": 14,
       "fontFamily": 1,
       "textAlign": "center",
@@ -566,7 +632,7 @@
       "link": null,
       "locked": false,
       "containerId": null,
-      "originalText": "PG DBaaS (3-node)\nPrimary · Replica · Replica",
+      "originalText": "PG DBaaS (3-node)\nPrimary \u00b7 Replica \u00b7 Replica",
       "lineHeight": 1.25
     },
     {
@@ -591,7 +657,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 126]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          126
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -651,7 +726,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 56]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          56
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -711,7 +795,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "region-right-label",
@@ -766,7 +852,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "cp-right-label",
@@ -775,7 +863,7 @@
       "y": 340,
       "width": 160,
       "height": 80,
-      "text": "Control Plane\n─────────\nAdmin API\nCert Mgmt · UI",
+      "text": "Control Plane\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nAdmin API\nCert Mgmt \u00b7 UI",
       "fontSize": 14,
       "fontFamily": 1,
       "textAlign": "center",
@@ -796,7 +884,7 @@
       "link": null,
       "locked": false,
       "containerId": null,
-      "originalText": "Control Plane\n─────────\nAdmin API\nCert Mgmt · UI",
+      "originalText": "Control Plane\n\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\nAdmin API\nCert Mgmt \u00b7 UI",
       "lineHeight": 1.25
     },
     {
@@ -818,12 +906,17 @@
       "versionNonce": 100034,
       "isDeleted": false,
       "boundElements": [
-        {"id": "arrow-dns-nb-right", "type": "arrow"}
+        {
+          "id": "arrow-dns-nb-right",
+          "type": "arrow"
+        }
       ],
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "nb-right-label",
@@ -878,7 +971,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "dp-right-1-label",
@@ -933,7 +1028,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "dp-right-2-label",
@@ -988,7 +1085,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [-30, 36]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -30,
+          36
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -1017,7 +1123,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [40, 36]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          40,
+          36
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -1046,7 +1161,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "pg-right-label",
@@ -1055,7 +1172,7 @@
       "y": 575,
       "width": 240,
       "height": 50,
-      "text": "PG DBaaS (3-node)\nPrimary · Replica · Replica",
+      "text": "PG DBaaS (3-node)\nPrimary \u00b7 Replica \u00b7 Replica",
       "fontSize": 14,
       "fontFamily": 1,
       "textAlign": "center",
@@ -1076,7 +1193,7 @@
       "link": null,
       "locked": false,
       "containerId": null,
-      "originalText": "PG DBaaS (3-node)\nPrimary · Replica · Replica",
+      "originalText": "PG DBaaS (3-node)\nPrimary \u00b7 Replica \u00b7 Replica",
       "lineHeight": 1.25
     },
     {
@@ -1101,7 +1218,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 126]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          126
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -1161,7 +1287,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 56]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          56
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -1221,10 +1356,27 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [-100, 96]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -100,
+          96
+        ]
+      ],
       "lastCommittedPoint": null,
-      "startBinding": {"elementId": "dns-box", "focus": 0, "gap": 2},
-      "endBinding": {"elementId": "nb-left", "focus": 0, "gap": 2},
+      "startBinding": {
+        "elementId": "dns-box",
+        "focus": 0,
+        "gap": 2
+      },
+      "endBinding": {
+        "elementId": "nb-left",
+        "focus": 0,
+        "gap": 2
+      },
       "startArrowhead": null,
       "endArrowhead": "arrow"
     },
@@ -1250,10 +1402,27 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [340, 96]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          340,
+          96
+        ]
+      ],
       "lastCommittedPoint": null,
-      "startBinding": {"elementId": "dns-box", "focus": 0, "gap": 2},
-      "endBinding": {"elementId": "nb-right", "focus": 0, "gap": 2},
+      "startBinding": {
+        "elementId": "dns-box",
+        "focus": 0,
+        "gap": 2
+      },
+      "endBinding": {
+        "elementId": "nb-right",
+        "focus": 0,
+        "gap": 2
+      },
       "startArrowhead": null,
       "endArrowhead": "arrow"
     },
@@ -1279,7 +1448,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "objst-label",
@@ -1334,7 +1505,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [218, 260]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          218,
+          260
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -1394,7 +1574,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [260, -220]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          260,
+          -220
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,

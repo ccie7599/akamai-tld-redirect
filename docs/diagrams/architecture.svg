@@ -23,7 +23,7 @@
 <path d="M429.83 168.78 C505.85 171.04,579.30 170.16,729.53 170.82 M429.89 169.94 C512.39 169.48,595.18 169.82,729.45 169.71 M728.57 169.66 C731.45 188.77,731.81 206.44,728.34 229.03 M729.96 170.40 C728.98 184.75,730.22 200.26,730.31 230.78 M728.81 230.83 C637.60 230.71,543.74 231.71,429.27 230.03 M730.42 229.43 C620.91 228.57,513.18 228.92,429.80 229.71 M428.71 228.08 C430.10 215.06,431.83 194.85,430.40 171.10 M429.56 229.30 C430.29 213.61,429.75 196.56,430.82 169.96" stroke="#e03131" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
 <g transform="translate(10.00,30.00)">
-<text x="580.00" y="195.50" font-family="Virgil, Segoe UI Emoji, cursive" font-size="18" fill="#e03131" text-anchor="middle"><tspan x="580.00" dy="0">Akamai Edge DNS</tspan><tspan x="580.00" dy="22.5">(GTM failover)</tspan></text>
+<text x="645.00" y="184.25" font-family="Virgil, Segoe UI Emoji, cursive" font-size="18" fill="#e03131" text-anchor="middle"><tspan x="645.00" dy="0">DNS Provider</tspan><tspan x="645.00" dy="22.5">(any — Akamai Edge DNS in this ref)</tspan><tspan x="645.00" dy="22.5">(GTM failover)</tspan></text>
 </g>
 <g transform="translate(10.00,30.00)">
 <path d="M581.49 122.26 C580.93 131.59,578.51 144.08,581.77 169.90 M580.55 122.45 C580.47 136.42,580.33 150.34,580.09 167.10" stroke="#343a40" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>

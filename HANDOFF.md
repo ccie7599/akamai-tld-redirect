@@ -10,12 +10,12 @@ A multi-region redirect engine that replaces F5 appliances for managing 2000+ le
 - 2 Managed PostgreSQL clusters (3-node each, auto-failover)
 - 2 NodeBalancers (TCP passthrough to data plane)
 - 1 Object Storage bucket for cross-region rule sync
-- 3 Akamai Edge DNS A records
+- 3 DNS A records (reference implementation uses Akamai Edge DNS; any DNS provider works)
 - 1 Akamai edge property for DS2 beacon telemetry
 
 ## What the Customer Needs to Do
 
-1. **Delegate DNS** — Point their apex domains (A records) to the NodeBalancer IPs, or delegate NS to Akamai Edge DNS
+1. **Point DNS** — Create A records for their apex domains pointing to the NodeBalancer IPs. Works with any DNS provider (Akamai Edge DNS, Route 53, Cloudflare, customer-managed, etc.)
 2. **Populate domains** — Import their full domain list via the bulk import API
 3. **Validate redirects** — Test each domain resolves and redirects correctly
 4. **Set up DS2 downstream** — Configure their ClickHouse/Splunk/S3 to receive DS2 webhook data

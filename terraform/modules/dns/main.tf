@@ -1,6 +1,9 @@
 # -----------------------------------------------------------------------------
-# DNS module — A records on Akamai Edge DNS
-# Creates A records for apex domains and control plane endpoints
+# DNS module — A records for apex domains and control plane endpoints
+#
+# This reference implementation uses Akamai Edge DNS. The redirect engine
+# is DNS-provider agnostic — replace this module with any provider that
+# supports A records (Cloudflare, Route 53, Linode DNS Manager, etc.).
 # -----------------------------------------------------------------------------
 
 terraform {

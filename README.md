@@ -84,6 +84,20 @@ See [docs/ds2-beacon.md](docs/ds2-beacon.md) for the full design — path encodi
   </a>
 </p>
 
+## DNS — Provider Agnostic
+
+The redirect engine is DNS-provider agnostic. The only requirement is A records pointing apex domains to the NodeBalancer IPs. Any DNS provider that supports A records works:
+
+| Provider | Notes |
+|----------|-------|
+| **Akamai Edge DNS** | Used in this reference implementation. 100% uptime SLA. Terraform module included (`modules/dns/`). |
+| **Cloudflare** | Replace the DNS Terraform module with `cloudflare_record` resources. |
+| **AWS Route 53** | Use `aws_route53_record` resources. Supports health-check-based failover. |
+| **Linode DNS Manager** | Use `linode_domain_record` resources. Free with Linode account. |
+| **Customer-managed** | Customer creates A records in their existing provider. No Terraform needed. |
+
+The Terraform DNS module (`modules/dns/`) is a thin wrapper around `akamai_dns_record` — swap it for any provider's equivalent. The redirect engine itself never interacts with DNS; it only needs traffic to arrive at the NodeBalancer IPs.
+
 ## Security: Akamai Integration Options
 
 See [docs/akamai-integration.md](docs/akamai-integration.md) for notes on using Akamai API Gateway and App & API Protector in hybrid mode to add WAF/bot protection to the redirect infrastructure without moving serving logic to the edge.
@@ -119,7 +133,7 @@ internal/
 web/static/                 Admin UI (vanilla JS SPA)
 terraform/
   modules/region/           PG, NB, instances, firewalls per region
-  modules/dns/              Akamai Edge DNS A records
+  modules/dns/              DNS A records (reference impl uses Akamai Edge DNS)
   environments/prod/        2-region production wiring
 scripts/                    systemd units, deploy scripts
 sample-data/                10 sample legacy domains for demo

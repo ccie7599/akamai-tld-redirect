@@ -10,7 +10,7 @@
       "y": 10,
       "width": 500,
       "height": 35,
-      "text": "Request Flow — TLD Redirect with DS2 Beacon",
+      "text": "Request Flow \u2014 TLD Redirect with DS2 Beacon",
       "fontSize": 24,
       "fontFamily": 1,
       "textAlign": "center",
@@ -31,7 +31,7 @@
       "link": null,
       "locked": false,
       "containerId": null,
-      "originalText": "Request Flow — TLD Redirect with DS2 Beacon",
+      "originalText": "Request Flow \u2014 TLD Redirect with DS2 Beacon",
       "lineHeight": 1.25
     },
     {
@@ -56,7 +56,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "rf-client-lbl",
@@ -111,7 +113,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [86, 0]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          86,
+          0
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -171,7 +182,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "rf-dns-lbl",
@@ -226,7 +239,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [86, 0]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          86,
+          0
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -286,7 +308,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "rf-nb-lbl",
@@ -341,7 +365,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [86, 0]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          86,
+          0
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -401,7 +434,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "rf-dp-lbl",
@@ -410,7 +445,7 @@
       "y": 80,
       "width": 140,
       "height": 60,
-      "text": "Data Plane\n──────\nin-memory lookup",
+      "text": "Data Plane\n\u2500\u2500\u2500\u2500\u2500\u2500\nin-memory lookup",
       "fontSize": 14,
       "fontFamily": 1,
       "textAlign": "center",
@@ -431,7 +466,7 @@
       "link": null,
       "locked": false,
       "containerId": null,
-      "originalText": "Data Plane\n──────\nin-memory lookup",
+      "originalText": "Data Plane\n\u2500\u2500\u2500\u2500\u2500\u2500\nin-memory lookup",
       "lineHeight": 1.25
     },
     {
@@ -456,7 +491,20 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [-360, -30], [-720, 20]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -360,
+          -30
+        ],
+        [
+          -720,
+          20
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -470,7 +518,7 @@
       "y": 18,
       "width": 160,
       "height": 18,
-      "text": "301 → target URL",
+      "text": "301 \u2192 target URL",
       "fontSize": 14,
       "fontFamily": 3,
       "textAlign": "center",
@@ -491,7 +539,7 @@
       "link": null,
       "locked": false,
       "containerId": null,
-      "originalText": "301 → target URL",
+      "originalText": "301 \u2192 target URL",
       "lineHeight": 1.25
     },
     {
@@ -501,7 +549,7 @@
       "y": 175,
       "width": 900,
       "height": 25,
-      "text": "─ ─ ─ ─ ─ ─ ─ ─ ─   async (non-blocking)  ─ ─ ─ ─ ─ ─ ─ ─ ─",
+      "text": "\u2500 \u2500 \u2500 \u2500 \u2500 \u2500 \u2500 \u2500 \u2500   async (non-blocking)  \u2500 \u2500 \u2500 \u2500 \u2500 \u2500 \u2500 \u2500 \u2500",
       "fontSize": 14,
       "fontFamily": 1,
       "textAlign": "center",
@@ -522,7 +570,7 @@
       "link": null,
       "locked": false,
       "containerId": null,
-      "originalText": "─ ─ ─ ─ ─ ─ ─ ─ ─   async (non-blocking)  ─ ─ ─ ─ ─ ─ ─ ─ ─",
+      "originalText": "\u2500 \u2500 \u2500 \u2500 \u2500 \u2500 \u2500 \u2500 \u2500   async (non-blocking)  \u2500 \u2500 \u2500 \u2500 \u2500 \u2500 \u2500 \u2500 \u2500",
       "lineHeight": 1.25
     },
     {
@@ -547,7 +595,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [80, 90]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          80,
+          90
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -607,7 +664,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "rf-akamai-edge-lbl",
@@ -662,7 +721,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [-100, 130]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -100,
+          130
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -722,7 +790,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "rf-pg-lbl",
@@ -777,7 +847,16 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "points": [[0, 0], [0, 70]],
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          70
+        ]
+      ],
       "lastCommittedPoint": null,
       "startBinding": null,
       "endBinding": null,
@@ -837,7 +916,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "rf-ds2-webhook-lbl",
@@ -892,7 +973,9 @@
       "updated": 1700000000000,
       "link": null,
       "locked": false,
-      "roundness": {"type": 3}
+      "roundness": {
+        "type": 3
+      }
     },
     {
       "id": "rf-latency-note-lbl",
