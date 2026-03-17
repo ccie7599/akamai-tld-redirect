@@ -134,6 +134,39 @@ resource "linode_nodebalancer_node" "data_http" {
 }
 
 # -----------------------------------------------------------------------------
+# Firewall — NodeBalancer
+# Inbound: 80/443 open (public redirect traffic)
+# Default drop on all other ports
+# -----------------------------------------------------------------------------
+
+resource "linode_firewall" "nodebalancer" {
+  label = "${local.prefix}-nb-fw"
+
+  inbound {
+    label    = "allow-https"
+    action   = "ACCEPT"
+    protocol = "TCP"
+    ports    = "443"
+    ipv4     = ["0.0.0.0/0"]
+    ipv6     = ["::/0"]
+  }
+
+  inbound {
+    label    = "allow-http"
+    action   = "ACCEPT"
+    protocol = "TCP"
+    ports    = "80"
+    ipv4     = ["0.0.0.0/0"]
+    ipv6     = ["::/0"]
+  }
+
+  inbound_policy  = "DROP"
+  outbound_policy = "ACCEPT"
+
+  nodebalancers = [linode_nodebalancer.data.id]
+}
+
+# -----------------------------------------------------------------------------
 # Firewall — data plane
 # Inbound: NB private subnet on 80/443, admin CIDRs on 22
 # -----------------------------------------------------------------------------
