@@ -102,16 +102,21 @@ The Terraform DNS module (`modules/dns/`) is a thin wrapper around `akamai_dns_r
 
 See [docs/akamai-integration.md](docs/akamai-integration.md) for notes on using Akamai API Gateway and App & API Protector in hybrid mode to add WAF/bot protection to the redirect infrastructure without moving serving logic to the edge.
 
-## Cost
+## Infrastructure Components
 
-| Resource | Spec | Monthly |
-|----------|------|---------|
-| PG DBaaS x 2 | 3-node Nanode per region | $74 |
-| Data compute x 4 | Dedicated 4GB | $260 |
-| Control compute x 2 | Dedicated 4GB | $130 |
-| NodeBalancer x 2 | 1 per region | $20 |
-| Object Storage | 1 bucket | $5 |
-| **Total** | | **~$489/mo** |
+| Component | Qty | Regions | Model | Who Manages |
+|-----------|:---:|:-------:|-------|-------------|
+| **PostgreSQL DBaaS** | 2 (3-node each) | 1 per region | **PaaS** — provider manages HA, failover, backups, patching | Provider (Linode Managed Database) |
+| **NodeBalancer** | 2 | 1 per region | **PaaS** — provider manages health checks, TCP passthrough, failover | Provider (Linode NodeBalancer) |
+| **Data plane instances** | 4 (2 per region) | 2 per region | **IaaS** — customer manages OS, binary, config, monitoring | Customer / ops team |
+| **Control plane instances** | 2 | 1 per region | **IaaS** — customer manages OS, binary, config, cert provisioning | Customer / ops team |
+| **Object Storage** | 1 bucket | shared | **PaaS** — provider manages durability, availability | Provider (S3-compatible) |
+| **DNS** | A records | both | **PaaS** — provider manages resolution, anycast | Provider (any DNS — see above) |
+| **DS2 beacon property** | 1 | edge (global) | **PaaS** — Akamai manages edge, DataStream pipeline | Akamai |
+
+**Estimated cost:** ~$489/mo (2x PG $74, 4x data compute $260, 2x control compute $130, 2x NB $20, ObjSt $5)
+
+The PaaS components (PG, NodeBalancer, Object Storage) require no OS-level management — patching, failover, and backups are handled by the provider. The IaaS components (data plane, control plane) run a single Go binary managed via systemd, deployed with `scripts/deploy-multi.sh`. Operational procedures for the IaaS components are in [docs/runbook.md](docs/runbook.md).
 
 ## Project Structure
 

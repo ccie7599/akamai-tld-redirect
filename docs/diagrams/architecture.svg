@@ -9,7 +9,7 @@
 </style></defs>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <g transform="translate(10.00,30.00)">
-<text x="600.00" y="38.00" font-family="Cascadia, Fira Code, monospace" font-size="28" fill="#343a40" text-anchor="middle"><tspan x="600.00" dy="0">Multi-Region Architecture — PNC Redirect Engine</tspan></text>
+<text x="600.00" y="38.00" font-family="Cascadia, Fira Code, monospace" font-size="28" fill="#343a40" text-anchor="middle"><tspan x="600.00" dy="0">Multi-Region Architecture — TLD Redirect Engine</tspan></text>
 </g>
 <g transform="translate(10.00,30.00)">
 <rect x="480" y="60" width="200" height="60" rx="15" fill="#e9ecef" stroke="none"/>
@@ -19,11 +19,11 @@
 <text x="580.00" y="99.00" font-family="Cascadia, Fira Code, monospace" font-size="24" fill="#495057" text-anchor="middle"><tspan x="580.00" dy="0">Client</tspan></text>
 </g>
 <g transform="translate(10.00,30.00)">
-<rect x="430" y="170" width="300" height="60" rx="15" fill="#ffc9c9" stroke="none"/>
-<rect x="430" y="170" width="300" height="60" rx="15" fill="none" stroke="#e03131" stroke-width="1"/>
+<rect x="380" y="170" width="400" height="70" rx="17.5" fill="#ffc9c9" stroke="none"/>
+<rect x="380" y="170" width="400" height="70" rx="17.5" fill="none" stroke="#e03131" stroke-width="1"/>
 </g>
 <g transform="translate(10.00,30.00)">
-<text x="645.00" y="184.25" font-family="Cascadia, Fira Code, monospace" font-size="18" fill="#e03131" text-anchor="middle"><tspan x="645.00" dy="0">DNS Provider</tspan><tspan x="645.00" dy="22.5">(any — Akamai Edge DNS in this ref)</tspan><tspan x="645.00" dy="22.5">(GTM failover)</tspan></text>
+<text x="580.00" y="201.00" font-family="Cascadia, Fira Code, monospace" font-size="16" fill="#e03131" text-anchor="middle"><tspan x="580.00" dy="0">DNS Provider (any)</tspan><tspan x="580.00" dy="20">Ref impl: Akamai Edge DNS</tspan></text>
 </g>
 <g transform="translate(10.00,30.00)">
 <path d="M580.00 122.00 C580.00 133.48,580.00 144.96,580.00 168.00 M580.00 122.00 C580.00 136.60,580.00 151.19,580.00 168.00" stroke="#343a40" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -55,14 +55,14 @@
 <rect x="290" y="420" width="100" height="80" rx="20" fill="none" stroke="#2f9e44" stroke-width="1"/>
 </g>
 <g transform="translate(10.00,30.00)">
-<text x="340.00" y="456.50" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#2f9e44" text-anchor="middle"><tspan x="340.00" dy="0">Data</tspan><tspan x="340.00" dy="17.5">Plane 1</tspan></text>
+<text x="340.00" y="456.50" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#2f9e44" text-anchor="middle"><tspan x="340.00" dy="0">Data 1</tspan><tspan x="340.00" dy="17.5">+ DS2</tspan></text>
 </g>
 <g transform="translate(10.00,30.00)">
 <rect x="410" y="420" width="100" height="80" rx="20" fill="#b2f2bb" stroke="none"/>
 <rect x="410" y="420" width="100" height="80" rx="20" fill="none" stroke="#2f9e44" stroke-width="1"/>
 </g>
 <g transform="translate(10.00,30.00)">
-<text x="460.00" y="456.50" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#2f9e44" text-anchor="middle"><tspan x="460.00" dy="0">Data</tspan><tspan x="460.00" dy="17.5">Plane 2</tspan></text>
+<text x="460.00" y="456.50" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#2f9e44" text-anchor="middle"><tspan x="460.00" dy="0">Data 2</tspan><tspan x="460.00" dy="17.5">+ DS2</tspan></text>
 </g>
 <g transform="translate(10.00,30.00)">
 <path d="M370.00 382.00 C362.51 390.99,355.02 399.97,340.00 418.00 M370.00 382.00 C363.51 389.78,357.03 397.57,340.00 418.00" stroke="#343a40" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -119,14 +119,14 @@
 <rect x="890" y="420" width="100" height="80" rx="20" fill="none" stroke="#2f9e44" stroke-width="1"/>
 </g>
 <g transform="translate(10.00,30.00)">
-<text x="940.00" y="456.50" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#2f9e44" text-anchor="middle"><tspan x="940.00" dy="0">Data</tspan><tspan x="940.00" dy="17.5">Plane 1</tspan></text>
+<text x="940.00" y="456.50" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#2f9e44" text-anchor="middle"><tspan x="940.00" dy="0">Data 1</tspan><tspan x="940.00" dy="17.5">+ DS2</tspan></text>
 </g>
 <g transform="translate(10.00,30.00)">
 <rect x="1010" y="420" width="100" height="80" rx="20" fill="#b2f2bb" stroke="none"/>
 <rect x="1010" y="420" width="100" height="80" rx="20" fill="none" stroke="#2f9e44" stroke-width="1"/>
 </g>
 <g transform="translate(10.00,30.00)">
-<text x="1060.00" y="456.50" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#2f9e44" text-anchor="middle"><tspan x="1060.00" dy="0">Data</tspan><tspan x="1060.00" dy="17.5">Plane 2</tspan></text>
+<text x="1060.00" y="456.50" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#2f9e44" text-anchor="middle"><tspan x="1060.00" dy="0">Data 2</tspan><tspan x="1060.00" dy="17.5">+ DS2</tspan></text>
 </g>
 <g transform="translate(10.00,30.00)">
 <path d="M970.00 382.00 C962.51 390.99,955.02 399.98,940.00 418.00 M970.00 382.00 C962.70 390.76,955.40 399.51,940.00 418.00" stroke="#343a40" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>

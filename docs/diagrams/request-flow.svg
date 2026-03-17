@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1162" height="545" viewBox="0 0 1162 545">
+<svg xmlns="http://www.w3.org/2000/svg" width="1162" height="560" viewBox="0 0 1162 560">
 <defs><style>
 @font-face {
   font-family: 'Virgil';
@@ -8,115 +8,115 @@
 }
 </style></defs>
 <rect width="100%" height="100%" fill="#ffffff"/>
-<g transform="translate(20.00,30.00)">
-<text x="550.00" y="36.50" font-family="Cascadia, Fira Code, monospace" font-size="24" fill="#343a40" text-anchor="middle"><tspan x="550.00" dy="0">Request Flow — TLD Redirect with DS2 Beacon</tspan></text>
+<g transform="translate(20.00,45.00)">
+<text x="550.00" y="21.50" font-family="Cascadia, Fira Code, monospace" font-size="24" fill="#343a40" text-anchor="middle"><tspan x="550.00" dy="0">Request Flow — TLD Redirect with DS2 Beacon</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <rect x="20" y="80" width="130" height="70" rx="17.5" fill="#e9ecef" stroke="none"/>
 <rect x="20" y="80" width="130" height="70" rx="17.5" fill="none" stroke="#495057" stroke-width="1"/>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <text x="85.00" y="111.00" font-family="Cascadia, Fira Code, monospace" font-size="16" fill="#495057" text-anchor="middle"><tspan x="85.00" dy="0">Client</tspan><tspan x="85.00" dy="20">(browser)</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <path d="M152.00 100.00 C177.73 100.00,203.45 100.00,238.00 100.00 M152.00 100.00 C174.68 100.00,197.37 100.00,238.00 100.00" stroke="#343a40" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M225.01 107.50 L238.00 100.00 L225.01 92.50" stroke="#343a40" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <text x="195.00" y="91.50" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#343a40" text-anchor="middle"><tspan x="195.00" dy="0">A record</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <rect x="240" y="70" width="150" height="80" rx="20" fill="#ffc9c9" stroke="none"/>
 <rect x="240" y="70" width="150" height="80" rx="20" fill="none" stroke="#e03131" stroke-width="1"/>
 </g>
-<g transform="translate(20.00,30.00)">
-<text x="315.50" y="106.00" font-family="Cascadia, Fira Code, monospace" font-size="16" fill="#e03131" text-anchor="middle"><tspan x="315.50" dy="0">Akamai</tspan><tspan x="315.50" dy="20">Edge DNS</tspan></text>
+<g transform="translate(20.00,45.00)">
+<text x="315.50" y="106.00" font-family="Cascadia, Fira Code, monospace" font-size="16" fill="#e03131" text-anchor="middle"><tspan x="315.50" dy="0">DNS</tspan><tspan x="315.50" dy="20">(any provider)</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <path d="M392.00 110.00 C417.73 110.00,443.45 110.00,478.00 110.00 M392.00 110.00 C422.03 110.00,452.06 110.00,478.00 110.00" stroke="#343a40" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M465.01 117.50 L478.00 110.00 L465.01 102.50" stroke="#343a40" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <text x="435.50" y="101.50" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#343a40" text-anchor="middle"><tspan x="435.50" dy="0">TCP connect</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <rect x="480" y="70" width="150" height="80" rx="20" fill="#e9ecef" stroke="none"/>
 <rect x="480" y="70" width="150" height="80" rx="20" fill="none" stroke="#495057" stroke-width="1"/>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <text x="555.00" y="106.50" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#495057" text-anchor="middle"><tspan x="555.00" dy="0">NodeBalancer</tspan><tspan x="555.00" dy="17.5">(TCP passthru)</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <path d="M632.00 110.00 C657.73 110.00,683.46 110.00,718.00 110.00 M632.00 110.00 C652.17 110.00,672.35 110.00,718.00 110.00" stroke="#343a40" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M705.01 117.50 L718.00 110.00 L705.01 102.50" stroke="#343a40" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <text x="674.50" y="101.50" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#343a40" text-anchor="middle"><tspan x="674.50" dy="0">TLS + HTTP</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <rect x="720" y="65" width="180" height="90" rx="22.5" fill="#b2f2bb" stroke="none"/>
 <rect x="720" y="65" width="180" height="90" rx="22.5" fill="none" stroke="#2f9e44" stroke-width="1"/>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <text x="810.00" y="97.75" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#2f9e44" text-anchor="middle"><tspan x="810.00" dy="0">Data Plane</tspan><tspan x="810.00" dy="17.5">──────</tspan><tspan x="810.00" dy="17.5">in-memory lookup</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <path d="M810.00 60.00 C750.00 55.00,570.00 26.67,450.00 30.00 C330.00 33.33,150.00 71.67,90.00 80.00 M810.00 60.00 C750.00 55.00,570.00 26.67,450.00 30.00 C330.00 33.33,150.00 71.67,90.00 80.00" stroke="#2f9e44" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M101.84 70.78 L90.00 80.00 L103.90 85.64" stroke="#2f9e44" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
-<g transform="translate(20.00,30.00)">
-<text x="450.00" y="32.25" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#2f9e44" text-anchor="middle"><tspan x="450.00" dy="0">301 → target URL</tspan></text>
+<g transform="translate(20.00,45.00)">
+<text x="430.00" y="52.25" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#2f9e44" text-anchor="middle"><tspan x="430.00" dy="0">301 → target URL</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <text x="470.00" y="192.75" font-family="Cascadia, Fira Code, monospace" font-size="14" fill="#868e96" text-anchor="middle"><tspan x="470.00" dy="0">─ ─ ─ ─ ─ ─ ─ ─ ─   async (non-blocking)  ─ ─ ─ ─ ─ ─ ─ ─ ─</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <path d="M850.00 157.00 C873.94 183.93,897.87 210.86,930.00 247.00 M850.00 157.00 C868.14 177.41,886.28 197.82,930.00 247.00" stroke="#e03131" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M915.76 242.27 L930.00 247.00 L926.98 232.31" stroke="#e03131" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <text x="915.00" y="203.50" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#e03131" text-anchor="middle"><tspan x="915.00" dy="0">fire &amp; forget</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <rect x="870" y="250" width="200" height="80" rx="20" fill="#ffc9c9" stroke="none"/>
 <rect x="870" y="250" width="200" height="80" rx="20" fill="none" stroke="#e03131" stroke-width="1"/>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <text x="970.00" y="286.00" font-family="Cascadia, Fira Code, monospace" font-size="16" fill="#e03131" text-anchor="middle"><tspan x="970.00" dy="0">Akamai Edge</tspan><tspan x="970.00" dy="20">(DS2 beacon)</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <path d="M810.00 157.00 C780.08 195.90,750.15 234.80,710.00 287.00 M810.00 157.00 C778.78 197.58,747.57 238.16,710.00 287.00" stroke="#f08c00" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M711.98 272.13 L710.00 287.00 L723.87 281.28" stroke="#f08c00" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <text x="755.00" y="243.50" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#f08c00" text-anchor="middle"><tspan x="755.00" dy="0">batch insert (async)</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <rect x="620" y="290" width="180" height="70" rx="17.5" fill="#fff3bf" stroke="none"/>
 <rect x="620" y="290" width="180" height="70" rx="17.5" fill="none" stroke="#f08c00" stroke-width="1"/>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <text x="710.00" y="331.75" font-family="Cascadia, Fira Code, monospace" font-size="18" fill="#f08c00" text-anchor="middle"><tspan x="710.00" dy="0">PostgreSQL</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <path d="M970.00 332.00 C970.00 352.95,970.00 373.89,970.00 402.00 M970.00 332.00 C970.00 359.83,970.00 387.66,970.00 402.00" stroke="#e03131" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M962.50 389.01 L970.00 402.00 L977.50 389.01" stroke="#e03131" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <text x="1042.00" y="368.50" font-family="Cascadia, Fira Code, monospace" font-size="12" fill="#e03131" text-anchor="middle"><tspan x="1042.00" dy="0">JSON batch ~30s</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <rect x="870" y="405" width="200" height="70" rx="17.5" fill="#ffc9c9" stroke="none"/>
 <rect x="870" y="405" width="200" height="70" rx="17.5" fill="none" stroke="#e03131" stroke-width="1"/>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <text x="970.00" y="436.00" font-family="Cascadia, Fira Code, monospace" font-size="16" fill="#e03131" text-anchor="middle"><tspan x="970.00" dy="0">DS2 Webhook</tspan><tspan x="970.00" dy="20">Endpoint</tspan></text>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <rect x="20" y="220" width="250" height="80" rx="20" fill="#f8f9fa" stroke="none"/>
 <rect x="20" y="220" width="250" height="80" rx="20" fill="none" stroke="#868e96" stroke-width="1"/>
 </g>
-<g transform="translate(20.00,30.00)">
+<g transform="translate(20.00,45.00)">
 <text x="35.00" y="248.13" font-family="Cascadia, Fira Code, monospace" font-size="13" fill="#868e96" text-anchor="start"><tspan x="35.00" dy="0">Redirect latency: ~2ms</tspan><tspan x="35.00" dy="16.25">(in-memory map, no DB hit</tspan><tspan x="35.00" dy="16.25">on the hot path)</tspan></text>
 </g>
 </svg>
