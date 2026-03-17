@@ -129,7 +129,6 @@ The PaaS components (PG, NodeBalancer, Object Storage) require no OS-level manag
 
 **Caveats:**
 - Multi-region projection assumes uncorrelated failures between us-ord and us-iad. Correlated failures (provider-wide outage, shared upstream) would reduce this.
-- Linode SLAs are credit-based, not contractual uptime guarantees. Enterprises should pursue an enterprise agreement for binding commitments.
 - Data plane resilience during PG outage is limited to the last loaded rule set (in-memory cache). New domains added during a PG outage won't be served until PG recovers.
 - Control plane downtime blocks admin operations (rule CRUD, cert provisioning) but does not affect redirect serving on the data plane.
 
