@@ -22,23 +22,11 @@ GET /beacon/legacy-trust-corp.example.com/301/%2Fmortgage/https%3A%2F%2Fwww.exam
 
 ## Architecture
 
-```mermaid
-sequenceDiagram
-    participant C as Client
-    participant D as Data Plane
-    participant E as Akamai Edge<br/>(ds2-beacon property)
-    participant DS2 as DS2 Pipeline<br/>(webhook → ClickHouse)
-
-    C->>D: GET legacy-trust-corp.example.com/mortgage
-    D-->>C: 301 → consolidated-bank.example.com/...
-
-    par Async beacon (non-blocking)
-        D--)E: GET /beacon/{domain}/{status}/{path}/...
-        E-->>E: 204 synthetic (no origin)
-        Note over E,DS2: Batched every 30s
-        E--)DS2: JSON payload via HTTPS webhook
-    end
-```
+<p align="center">
+  <a href="diagrams/ds2-beacon.excalidraw">
+    <img src="diagrams/ds2-beacon.svg" alt="DS2 beacon pipeline" width="850">
+  </a>
+</p>
 
 ## Beacon Sender Implementation
 
