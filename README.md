@@ -114,9 +114,24 @@ See [docs/akamai-integration.md](docs/akamai-integration.md) for notes on using 
 | **DNS** | A records | both | **PaaS** — provider manages resolution, anycast | Provider (any DNS — see above) |
 | **DS2 beacon property** | 1 | edge (global) | **PaaS** — Akamai manages edge, DataStream pipeline | Akamai |
 
-**Estimated cost:** ~$489/mo (2x PG $74, 4x data compute $260, 2x control compute $130, 2x NB $20, ObjSt $5)
-
 The PaaS components (PG, NodeBalancer, Object Storage) require no OS-level management — patching, failover, and backups are handled by the provider. The IaaS components (data plane, control plane) run a single Go binary managed via systemd, deployed with `scripts/deploy-multi.sh`. Operational procedures for the IaaS components are in [docs/runbook.md](docs/runbook.md).
+
+## Projected Availability
+
+| Component | SLA | Notes |
+|-----------|-----|-------|
+| DNS (Akamai Edge DNS) | 100% | Anycast, global. Other providers vary. |
+| NodeBalancer | 99.9% | Per-region. Client fails over to second region via DNS round-robin. |
+| Compute (Linode) | 99.99% | Per-instance. 2 data instances per region provide intra-region redundancy. |
+| Managed PostgreSQL (3-node) | 99.9% | Auto-failover within the cluster. Data plane serves from in-memory cache during PG outage. |
+| **Single-region composite** | **~99.8%** | Product of per-component SLAs within one region. |
+| **Multi-region (both regions down simultaneously)** | **~99.9996%** | ~1.6 minutes projected downtime per year. |
+
+**Caveats:**
+- Multi-region projection assumes uncorrelated failures between us-ord and us-iad. Correlated failures (provider-wide outage, shared upstream) would reduce this.
+- Linode SLAs are credit-based, not contractual uptime guarantees. Enterprises should pursue an enterprise agreement for binding commitments.
+- Data plane resilience during PG outage is limited to the last loaded rule set (in-memory cache). New domains added during a PG outage won't be served until PG recovers.
+- Control plane downtime blocks admin operations (rule CRUD, cert provisioning) but does not affect redirect serving on the data plane.
 
 ## Project Structure
 
