@@ -51,6 +51,23 @@
         setTimeout(() => el.remove(), 3000);
     }
 
+    // ─── DS2 UI Beacon ───
+    // Fires a beacon to the DS2 edge property on each page view.
+    // Same path-encoding pattern as redirect beacons, prefixed with /ui-visit/.
+    // Format: /ui-visit/{admin-host}/{page}/{referrer}
+    const DS2_BEACON = (function() {
+        const el = document.querySelector('meta[name="ds2-beacon"]');
+        return el ? el.content : '';
+    })();
+
+    function beaconPageView(page) {
+        if (!DS2_BEACON) return;
+        const host = encodeURIComponent(window.location.hostname);
+        const pg = encodeURIComponent(page || '/');
+        const ref = encodeURIComponent(document.referrer || 'direct');
+        new Image().src = `${DS2_BEACON}/ui-visit/${host}/${pg}/${ref}/${Date.now()}`;
+    }
+
     // ─── Router ───
     function navigate(hash) {
         window.location.hash = hash;
@@ -64,6 +81,9 @@
     async function route() {
         const path = getRoute();
         const app = document.getElementById('app');
+
+        // DS2 beacon for UI page view
+        beaconPageView(path);
 
         // Destroy old charts
         Object.values(charts).forEach(c => c.destroy());
