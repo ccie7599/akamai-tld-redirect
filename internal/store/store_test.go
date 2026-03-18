@@ -302,6 +302,140 @@ func TestBulkImportReplace(t *testing.T) {
 	}
 }
 
+func TestBulkImportReplaceSyncsEnabledState(t *testing.T) {
+	s := newTestStore(t)
+
+	// Import a domain as enabled
+	s.BulkImportReplace([]ImportEntry{
+		{DomainName: "toggle.example.com", DefaultURL: "https://target.com", StatusCode: 301, Enabled: boolPtr(true), Rules: []ImportRule{
+			{Path: "/a", TargetURL: "https://target.com/a", StatusCode: 301, Priority: 1, Enabled: boolPtr(true)},
+		}},
+	})
+	d, _ := s.GetDomain("toggle.example.com")
+	if !d.Enabled {
+		t.Fatal("domain should be enabled after initial import")
+	}
+	if !d.Rules[0].Enabled {
+		t.Fatal("rule should be enabled after initial import")
+	}
+
+	// Now import the same domain as disabled
+	s.BulkImportReplace([]ImportEntry{
+		{DomainName: "toggle.example.com", DefaultURL: "https://target.com", StatusCode: 301, Enabled: boolPtr(false), Rules: []ImportRule{
+			{Path: "/a", TargetURL: "https://target.com/a", StatusCode: 301, Priority: 1, Enabled: boolPtr(false)},
+		}},
+	})
+	d, _ = s.GetDomain("toggle.example.com")
+	if d.Enabled {
+		t.Fatal("domain should be DISABLED after sync import with enabled=false")
+	}
+	if d.Rules[0].Enabled {
+		t.Fatal("rule should be DISABLED after sync import with enabled=false")
+	}
+
+	// Re-enable via import
+	s.BulkImportReplace([]ImportEntry{
+		{DomainName: "toggle.example.com", DefaultURL: "https://target.com", StatusCode: 301, Enabled: boolPtr(true), Rules: []ImportRule{
+			{Path: "/a", TargetURL: "https://target.com/a", StatusCode: 301, Priority: 1, Enabled: boolPtr(true)},
+		}},
+	})
+	d, _ = s.GetDomain("toggle.example.com")
+	if !d.Enabled {
+		t.Fatal("domain should be RE-ENABLED after sync import with enabled=true")
+	}
+}
+
+func TestBulkImportReplaceDefaultsEnabledWhenOmitted(t *testing.T) {
+	s := newTestStore(t)
+
+	// Import without Enabled field (nil) — should default to true
+	s.BulkImportReplace([]ImportEntry{
+		{DomainName: "default.example.com", DefaultURL: "https://target.com", StatusCode: 301, Rules: []ImportRule{
+			{Path: "/x", TargetURL: "https://target.com/x", StatusCode: 301, Priority: 1},
+		}},
+	})
+	d, _ := s.GetDomain("default.example.com")
+	if !d.Enabled {
+		t.Fatal("domain should default to enabled=true when Enabled field is omitted")
+	}
+	if !d.Rules[0].Enabled {
+		t.Fatal("rule should default to enabled=true when Enabled field is omitted")
+	}
+}
+
+func TestExportAllPreservesEnabledState(t *testing.T) {
+	s := newTestStore(t)
+
+	// Create one enabled and one disabled domain
+	s.CreateDomain(&Domain{Name: "on.example.com", DefaultURL: "https://target.com", StatusCode: 301, Enabled: true})
+	d2 := &Domain{Name: "off.example.com", DefaultURL: "https://target.com", StatusCode: 301, Enabled: true}
+	s.CreateDomain(d2)
+	s.UpdateDomain("off.example.com", &Domain{DefaultURL: "https://target.com", StatusCode: 301, Enabled: false})
+
+	entries, err := s.ExportAll()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var onEntry, offEntry *ImportEntry
+	for i := range entries {
+		if entries[i].DomainName == "on.example.com" {
+			onEntry = &entries[i]
+		}
+		if entries[i].DomainName == "off.example.com" {
+			offEntry = &entries[i]
+		}
+	}
+	if onEntry == nil || offEntry == nil {
+		t.Fatal("expected both domains in export")
+	}
+	if onEntry.Enabled == nil || !*onEntry.Enabled {
+		t.Error("on.example.com should export as enabled=true")
+	}
+	if offEntry.Enabled == nil || *offEntry.Enabled {
+		t.Error("off.example.com should export as enabled=false")
+	}
+}
+
+func TestExportImportRoundTrip(t *testing.T) {
+	s := newTestStore(t)
+
+	// Set up: one enabled, one disabled, with rules
+	s.CreateDomain(&Domain{Name: "rt-on.example.com", DefaultURL: "https://target.com", StatusCode: 301, Enabled: true})
+	d2 := &Domain{Name: "rt-off.example.com", DefaultURL: "https://target.com", StatusCode: 302, Enabled: true}
+	s.CreateDomain(d2)
+	s.CreateRule(&RedirectRule{DomainID: d2.ID, Path: "/x", TargetURL: "https://target.com/x", StatusCode: 301, Priority: 5, Enabled: true})
+	s.UpdateDomain("rt-off.example.com", &Domain{DefaultURL: "https://target.com", StatusCode: 302, Enabled: false})
+
+	// Export
+	entries, _ := s.ExportAll()
+
+	// Import into a fresh store (simulating cross-region sync)
+	s2 := newTestStore(t)
+	err := s2.BulkImportReplace(entries)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Verify the enabled domain
+	d, _ := s2.GetDomain("rt-on.example.com")
+	if !d.Enabled {
+		t.Error("rt-on.example.com should be enabled after round-trip")
+	}
+
+	// Verify the disabled domain
+	d, _ = s2.GetDomain("rt-off.example.com")
+	if d.Enabled {
+		t.Error("rt-off.example.com should be DISABLED after round-trip")
+	}
+	if d.StatusCode != 302 {
+		t.Errorf("rt-off.example.com status: got %d, want 302", d.StatusCode)
+	}
+	if len(d.Rules) != 1 || d.Rules[0].Path != "/x" {
+		t.Error("rt-off.example.com should have its rule preserved after round-trip")
+	}
+}
+
 func TestExportAll(t *testing.T) {
 	s := newTestStore(t)
 
