@@ -353,6 +353,7 @@ type ImportEntry struct {
 	DomainName string       `json:"domain"`
 	DefaultURL string       `json:"default_url"`
 	StatusCode int          `json:"status_code"`
+	Enabled    *bool        `json:"enabled,omitempty"`
 	Rules      []ImportRule `json:"rules"`
 }
 
@@ -361,7 +362,18 @@ type ImportRule struct {
 	TargetURL  string `json:"target_url"`
 	StatusCode int    `json:"status_code"`
 	Priority   int    `json:"priority"`
+	Enabled    *bool  `json:"enabled,omitempty"`
 }
+
+// importEnabled returns the enabled value from an import entry, defaulting to true if not set.
+func importEnabled(b *bool) bool {
+	if b == nil {
+		return true
+	}
+	return *b
+}
+
+func boolPtr(b bool) *bool { return &b }
 
 func (s *Store) BulkImport(entries []ImportEntry) (int, error) {
 	tx, err := s.db.Begin()
@@ -450,24 +462,25 @@ func (s *Store) BulkImportReplace(entries []ImportEntry) error {
 		if sc == 0 {
 			sc = 301
 		}
+		enabled := importEnabled(e.Enabled)
 		importedDomains[e.DomainName] = true
 
 		var domainID int64
 		if s.dialect == DialectPostgres {
 			err := tx.QueryRow(
 				`INSERT INTO domains (name, default_url, status_code, enabled)
-				 VALUES ($1, $2, $3, TRUE)
-				 ON CONFLICT (name) DO UPDATE SET default_url = $2, status_code = $3, enabled = TRUE, updated_at = NOW()
+				 VALUES ($1, $2, $3, $4)
+				 ON CONFLICT (name) DO UPDATE SET default_url = $2, status_code = $3, enabled = $4, updated_at = NOW()
 				 RETURNING id`,
-				e.DomainName, e.DefaultURL, sc,
+				e.DomainName, e.DefaultURL, sc, enabled,
 			).Scan(&domainID)
 			if err != nil {
 				return fmt.Errorf("upsert domain %s: %w", e.DomainName, err)
 			}
 		} else {
 			_, err := tx.Exec(
-				"INSERT INTO domains (name, default_url, status_code, enabled) VALUES (?, ?, ?, 1) ON CONFLICT(name) DO UPDATE SET default_url = excluded.default_url, status_code = excluded.status_code, enabled = 1, updated_at = datetime('now')",
-				e.DomainName, e.DefaultURL, sc,
+				"INSERT INTO domains (name, default_url, status_code, enabled) VALUES (?, ?, ?, ?) ON CONFLICT(name) DO UPDATE SET default_url = excluded.default_url, status_code = excluded.status_code, enabled = excluded.enabled, updated_at = datetime('now')",
+				e.DomainName, e.DefaultURL, sc, boolToInt(enabled),
 			)
 			if err != nil {
 				return fmt.Errorf("upsert domain %s: %w", e.DomainName, err)
@@ -482,19 +495,20 @@ func (s *Store) BulkImportReplace(entries []ImportEntry) error {
 			if rsc == 0 {
 				rsc = 301
 			}
+			rEnabled := importEnabled(r.Enabled)
 			importedRules[fmt.Sprintf("%d:%s", domainID, r.Path)] = true
 
 			if s.dialect == DialectPostgres {
 				_, err = tx.Exec(
 					`INSERT INTO redirect_rules (domain_id, path, target_url, status_code, priority, enabled)
-					 VALUES ($1, $2, $3, $4, $5, TRUE)
-					 ON CONFLICT (domain_id, path) DO UPDATE SET target_url = $3, status_code = $4, priority = $5, enabled = TRUE, updated_at = NOW()`,
-					domainID, r.Path, r.TargetURL, rsc, r.Priority,
+					 VALUES ($1, $2, $3, $4, $5, $6)
+					 ON CONFLICT (domain_id, path) DO UPDATE SET target_url = $3, status_code = $4, priority = $5, enabled = $6, updated_at = NOW()`,
+					domainID, r.Path, r.TargetURL, rsc, r.Priority, rEnabled,
 				)
 			} else {
 				_, err = tx.Exec(
-					"INSERT INTO redirect_rules (domain_id, path, target_url, status_code, priority, enabled) VALUES (?, ?, ?, ?, ?, 1) ON CONFLICT(domain_id, path) DO UPDATE SET target_url = excluded.target_url, status_code = excluded.status_code, priority = excluded.priority, enabled = 1, updated_at = datetime('now')",
-					domainID, r.Path, r.TargetURL, rsc, r.Priority,
+					"INSERT INTO redirect_rules (domain_id, path, target_url, status_code, priority, enabled) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(domain_id, path) DO UPDATE SET target_url = excluded.target_url, status_code = excluded.status_code, priority = excluded.priority, enabled = excluded.enabled, updated_at = datetime('now')",
+					domainID, r.Path, r.TargetURL, rsc, r.Priority, boolToInt(rEnabled),
 				)
 			}
 			if err != nil {
@@ -571,6 +585,7 @@ func (s *Store) ExportAll() ([]ImportEntry, error) {
 			DomainName: d.Name,
 			DefaultURL: d.DefaultURL,
 			StatusCode: d.StatusCode,
+			Enabled:    boolPtr(d.Enabled),
 		}
 		for _, r := range rules {
 			e.Rules = append(e.Rules, ImportRule{
@@ -578,6 +593,7 @@ func (s *Store) ExportAll() ([]ImportEntry, error) {
 				TargetURL:  r.TargetURL,
 				StatusCode: r.StatusCode,
 				Priority:   r.Priority,
+				Enabled:    boolPtr(r.Enabled),
 			})
 		}
 		entries = append(entries, e)
