@@ -1,0 +1,46 @@
+TLD Redirect Engine — Bill of Materials
+
+Category	Component	Qty	Regions	Specification	Mgmt Model	Backup / Recovery	Monthly Cost	Notes
+
+COMPUTE
+	Data Plane Instance	4	2 per region	Dedicated 4GB (g6-dedicated-2)  ·  2 vCPU  ·  4GB RAM  ·  80GB SSD  ·  Ubuntu 24.04	IaaS — customer manages OS, binary, config	Linode Backups available ($5/mo/instance). Instances are stateless — redeploy from binary + env file in <5 min.	$260.00	Behind NodeBalancer. No direct public access. Runs -mode data.
+	Control Plane Instance	2	1 per region	Dedicated 4GB (g6-dedicated-2)  ·  2 vCPU  ·  4GB RAM  ·  80GB SSD  ·  Ubuntu 24.04	IaaS — customer manages OS, binary, config	Linode Backups available ($5/mo/instance). Instances are stateless — redeploy from binary + env file in <5 min.	$130.00	Runs -mode control. Admin API, cert provisioning, UI.
+
+DATABASE
+	PostgreSQL DBaaS	2	1 per region	3-node Nanode cluster  ·  PostgreSQL 16  ·  Auto-failover  ·  SSL required	PaaS — provider manages HA, failover, patching	Automatic daily backups (provider-managed, 7-day retention). Point-in-time recovery available. Failover is automatic within the 3-node cluster.	$74.00	Stores domains, rules, analytics, certs. Each region has independent PG.
+
+NETWORKING
+	NodeBalancer	2	1 per region	TCP passthrough :80/:443  ·  Round-robin  ·  10s health check interval  ·  3 check attempts	PaaS — provider manages load balancing, health checks	No backup needed — stateless. Recreate via Terraform in <1 min. NB IP changes on recreate (DNS update required).	$20.00	Public entry point for all redirect traffic.
+	Cloud Firewall (NB)	2	1 per region	Inbound: 80/443 open to 0.0.0.0/0. All other ports DROP.	PaaS — provider managed	No backup needed — defined in Terraform. Recreate in seconds.	$0.00	Attached to NodeBalancer.
+	Cloud Firewall (Data)	2	1 per region	Inbound: 80/443 from NB subnet (192.168.128.0/17) only. SSH from admin CIDRs.	PaaS — provider managed	No backup needed — defined in Terraform. Recreate in seconds.	$0.00	Blocks all direct public access to data instances.
+	Cloud Firewall (Control)	2	1 per region	Inbound: 443 from 0.0.0.0/0. Port 80 open for ACME HTTP-01. SSH from admin CIDRs.	PaaS — provider managed	No backup needed — defined in Terraform. Recreate in seconds.	$0.00	Port 80 required for Let's Encrypt certificate provisioning.
+
+STORAGE
+	Object Storage	1	Shared (us-ord)	S3-compatible  ·  Private ACL  ·  Scoped access key (read_write)	PaaS — provider manages durability, availability	Object versioning available. Current object is rules.json (~50KB). Re-publish from any control plane via API mutation.	$5.00	Cross-region rule sync. Polled every 5s by all instances.
+
+DNS
+	DNS A Records	3+	Both	2 A records per redirect domain (1 per NB IP). 2 control plane hostnames.	PaaS — provider manages resolution	Zone backup depends on DNS provider. Terraform recreates in seconds. TTL 300s.	Varies	Provider agnostic. Ref impl uses Akamai Edge DNS (100% SLA).
+
+OBSERVABILITY
+	DS2 Beacon Property	1	Edge (global)	Akamai edge property  ·  204 synthetic response  ·  No origin server	PaaS — Akamai manages edge	Property config stored in Akamai Property Manager. Export via API or Terraform.	Included	Requires Akamai contract with DS2 entitlement.
+	DataStream 2	1	Edge (global)	JSON delivery every 30s  ·  HTTPS webhook  ·  14 dataset fields captured	PaaS — Akamai manages pipeline	DS2 retains data per stream retention policy. Webhook endpoint is customer-managed.	Included	Captures domain, path, status, client IP, UA, referer per redirect.
+
+SOFTWARE
+	TLD Redirect Engine	6	3 per region	Single Go binary  ·  ~15MB  ·  CGO_ENABLED=0  ·  systemd managed	Open source	Source in git (github.com/ccie7599/akamai-tld-redirect). Binary rebuilt in <5s from source.	$0.00	57 component tests. 23K req/sec proven throughput.
+
+TLS
+	Let's Encrypt Certs	Per domain	Per domain	Auto-provisioned via CertMagic  ·  90-day lifetime  ·  Auto-renewal at 30 days	Automated	Certs stored in PG cert_store table (backed up with PG). Re-provision on demand if lost.	$0.00	Rate limit: 50 certs/registered domain/week.
+
+SECURITY (Recommended)
+	HashiCorp Vault	1	Shared	KV v2 secrets engine  ·  AppRole auth  ·  Audit logging  ·  AES-256-GCM at rest	Customer-managed or HCP Vault	Vault has integrated backup (Raft snapshots or Consul backend). HCP Vault is fully managed.	Varies	Recommended for production. Replaces PG cert_store for private key management.
+
+SECURITY (Optional)
+	App & API Protector	Per property	Edge (global)	WAF  ·  Bot Manager  ·  DDoS  ·  Rate Controls  ·  Adaptive Security Engine	PaaS — Akamai manages	Config stored in Akamai Property Manager. Export via API.	Varies	Optional. Front NodeBalancers for edge-layer security.
+
+
+SUMMARY
+	Fixed infrastructure (Linode)					Monthly total:	$489.00	Compute + DB + NB + ObjSt
+	Optional Linode Backups (6 instances)					Monthly total:	$30.00	$5/mo per instance, recommended
+	Akamai (DS2 beacon + Edge DNS)					Per contract		Requires existing Akamai contract
+	HashiCorp Vault					Per deployment		Recommended for production key management
+	App & API Protector					Per contract		Optional edge security layer

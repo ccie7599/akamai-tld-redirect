@@ -1,0 +1,18 @@
+Category,Component,Quantity,Per Region,Spec,Management Model,Provider,Monthly Unit Cost,Monthly Total,Notes
+Compute,Data Plane Instance,4,2,Dedicated 4GB (g6-dedicated-2) - 2 vCPU / 4GB RAM / 80GB SSD,IaaS - customer manages OS + binary + config,Linode,$65.00,$260.00,Behind NodeBalancer - no direct public access
+Compute,Control Plane Instance,2,1,Dedicated 4GB (g6-dedicated-2) - 2 vCPU / 4GB RAM / 80GB SSD,IaaS - customer manages OS + binary + config,Linode,$65.00,$130.00,Admin API + cert provisioning + UI
+Database,PostgreSQL DBaaS,2,1,3-node Nanode cluster (auto-failover) - PostgreSQL 16,PaaS - provider manages HA / failover / backups / patching,Linode Managed Database,$37.00,$74.00,Stores domains + rules + analytics + certs
+Networking,NodeBalancer,2,1,TCP passthrough on ports 80/443 - health checks every 10s,PaaS - provider manages load balancing + health checks,Linode,$10.00,$20.00,Public entry point for redirect traffic
+Networking,Cloud Firewall (NodeBalancer),2,1,Inbound 80/443 open - all other ports DROP,PaaS - provider managed,Linode,$0.00,$0.00,Attached to each NodeBalancer
+Networking,Cloud Firewall (Data Plane),2,1,Inbound from NB subnet only (192.168.128.0/17) + admin SSH,PaaS - provider managed,Linode,$0.00,$0.00,No direct public access to data instances
+Networking,Cloud Firewall (Control Plane),2,1,Inbound 443 open + 80 for ACME + admin SSH,PaaS - provider managed,Linode,$0.00,$0.00,ACME HTTP-01 requires port 80 from internet
+Storage,Object Storage,1,Shared,S3-compatible bucket (pnc-redirect-sync) - private ACL,PaaS - provider manages durability + availability,Linode,$5.00,$5.00,Cross-region rule sync via rules.json
+DNS,DNS A Records,3,Both,2 NB IPs for redirect + 2 control plane hostnames,PaaS - provider manages resolution + anycast,Any DNS provider (ref: Akamai Edge DNS),Varies,Varies,DNS provider agnostic - works with any provider
+Observability,DS2 Beacon Property,1,Edge (global),Akamai edge property - 204 synthetic response - no origin,PaaS - Akamai manages edge + DataStream pipeline,Akamai,Included,Included,Requires Akamai contract with DataStream 2 entitlement
+Observability,DataStream 2,1,Edge (global),JSON delivery every 30s to webhook endpoint,PaaS - Akamai manages pipeline,Akamai,Included,Included,Captures per-redirect telemetry
+Software,TLD Redirect Engine,6,3,Single Go binary - ~15MB - CGO_ENABLED=0,Open source (repo: github.com/ccie7599/akamai-tld-redirect),-,$0.00,$0.00,Control plane (-mode control) and data plane (-mode data)
+TLS,Let's Encrypt Certificates,Per domain,Per domain,Auto-provisioned via CertMagic - 90-day certs - auto-renewal,Automated - control plane provisions - data plane serves,Let's Encrypt,$0.00,$0.00,Free - rate limit 50 certs/domain/week
+Security (Recommended),HashiCorp Vault,1,Shared,KV v2 secrets engine for private key storage,Customer-managed or HCP Vault,HashiCorp,Varies,Varies,Recommended for production - replaces PG cert storage
+Security (Optional),App & API Protector,Per property,Per property,WAF + Bot Manager + DDoS protection at Akamai edge,PaaS - Akamai manages,Akamai,Varies,Varies,Optional - front NodeBalancers for edge security
+,,,,,,,,, 
+TOTALS,,,,,,,"Infrastructure (fixed):",$489.00,Excludes DNS / Akamai contract / Vault
