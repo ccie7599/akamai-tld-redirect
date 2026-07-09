@@ -37,6 +37,7 @@ module "ord" {
   ssh_public_key_path   = var.ssh_public_key_path
   admin_cidrs           = var.admin_cidrs
   data_instance_type    = var.data_instance_type
+  data_instance_count   = 1
   control_instance_type = var.control_instance_type
   tags                  = var.tags
 }
@@ -53,6 +54,7 @@ module "iad" {
   ssh_public_key_path   = var.ssh_public_key_path
   admin_cidrs           = var.admin_cidrs
   data_instance_type    = var.data_instance_type
+  data_instance_count   = 1
   control_instance_type = var.control_instance_type
   tags                  = var.tags
 }
@@ -82,12 +84,12 @@ module "dns" {
 # -----------------------------------------------------------------------------
 
 resource "linode_object_storage_bucket" "redirect_sync" {
-  label  = "tld-redirect-sync"
+  label  = "pnc-redirect-sync"
   region = "us-ord"
 }
 
 resource "linode_object_storage_key" "redirect_sync" {
-  label = "tld-redirect-sync-key"
+  label = "pnc-redirect-sync-key"
 
   bucket_access {
     bucket_name = linode_object_storage_bucket.redirect_sync.label
