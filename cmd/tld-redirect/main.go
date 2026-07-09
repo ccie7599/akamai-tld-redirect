@@ -111,6 +111,13 @@ func syncCfg(endpoint, bucket, key, accessKey, secretKey, region string) rsync.C
 // --- Control Plane ---
 
 func runControl(db *store.Store, token, adminDomain, acmeEmail, certDir string, staging bool, seedFile string, syncCfg rsync.Config) {
+	// Fail closed: the control plane exposes the admin API — refuse to serve it
+	// behind an unset or well-known default token. This is a hard requirement for
+	// any non-dev deployment, not a warning.
+	if token == "" || token == "changeme" {
+		log.Fatalf("control plane: refusing to start with an unset or default admin token; set TLD_ADMIN_TOKEN (or -token) to a strong secret")
+	}
+
 	log.Printf("control plane: starting admin API + cert provisioner")
 
 	// Redirect engine (for HasDomain check during cert provisioning)
