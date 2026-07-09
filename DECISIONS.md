@@ -84,3 +84,30 @@ Most enterprises evaluating this solution already have Vault deployed. If they d
 **Context**: Control plane handles admin operations (sensitive). Data plane handles public redirect traffic.
 
 **Rationale**: Data plane firewall only allows inbound from the NodeBalancer private subnet (`192.168.128.0/17`) on ports 80/443 and admin CIDRs on port 22. Control plane firewall allows admin CIDRs on 443/22 and `0.0.0.0/0` on port 80 (for ACME HTTP-01 challenges). This ensures a compromised data plane instance can't access admin APIs, and public traffic can't reach data plane instances directly (must go through NB).
+
+---
+
+## ADR-008: No Edge-Hosted Control Plane for PNC Delivery
+
+**Decision**: Deliver the control plane as the existing IaaS Go binary (`-mode control`) in PNC's compute environment. Do **not** build an edge-hosted (Akamai Functions / EdgeWorkers / Fermyon Spin) control plane for this engagement. The `docs/future-edge-control-plane.md` design is parked, not deleted.
+
+**Context**: The deal closed and moved from pre-sales POC to delivery. Pre-teardown (Apr 18) we documented a future direction to move the admin control plane to Akamai's edge to shed IaaS operational burden. On revisiting for delivery, two facts kill it:
+
+1. **Functions is assumed unavailable** in PNC's Akamai entitlements. We should not architect the delivery around a platform we may not have.
+2. **Redirect traffic goes direct to origin.** There is no Akamai property in the redirect request path, so there is no edge for an EdgeWorker to execute on. An EW can only run on requests that traverse Akamai's edge — it can't help a direct-to-origin data plane. The only thing an edge worker could have hosted is the *admin* UI/API, which is low-traffic and does not justify a new runtime, toolchain, and cert/auth story.
+
+**Rationale**: The IaaS Go control plane is proven — it's exactly what we demoed. Using it for delivery eliminates platform risk entirely (worst case = the known-good system) and removes the edge migration's open questions (cert provisioning at the edge, rule-store atomicity for concurrent admin edits, edge-native auth). The data plane already polls Object Storage for rules, so nothing about the data plane changes. If PNC later gains Functions and wants edge admin hosting as an optimization, the parked design remains valid — the Object Storage rule contract is the stable integration point.
+
+**Revisit if**: PNC's redirect traffic is later fronted by an Akamai property (CDN/WAF), or Functions/EdgeWorkers becomes entitled and admin-UI latency/ops burden becomes a real pain point.
+
+---
+
+## ADR-009: Product Naming vs. Customer Configuration
+
+**Decision**: The **product** keeps a generic name — `tld-redirect` binary, `cmd/tld-redirect/`, `TLD_*` env prefix, `/opt/tld-redirect/` install path, `tld-redirect-*` systemd units. **Customer-specific values** carry the customer prefix — Object Storage bucket (`pnc-redirect-sync`), redirect/admin domains, database, and resource tags. Customer identity lives in *config*, never in the binary or paths.
+
+**Context**: The demo run drifted: instances were hand-deployed to `/opt/pnc-redirect/`, a `pnc-redirect` binary copy was created to match a mislabeled service file, and the sync bucket was renamed `pnc-redirect-sync`. The entire Mar 20 scale-down failure cascade (exit 203, env-prefix mismatch, service-path mismatch) traces to this half-finished rebrand — the code was always `tld-redirect`; only the deployed artifacts drifted.
+
+**Rationale**: The redirect engine is a reusable asset intended for future customer engagements (per the TSA asset-extraction discipline). Baking `pnc` into the binary, paths, and env prefix would fork the product per customer and re-introduce exactly the drift that broke the demo. Keeping the product generic and pushing customer identity into config (env files, Terraform variables, tags) means one artifact deploys anywhere and deploys are reproducible. The uncommitted `pnc-redirect-sync` bucket rename is therefore correct-as-config; the code default staying `tld-redirect-sync` is correct-as-product (env overrides it per deployment).
+
+**Consequence**: Reconcile all drift to this rule before deploying into PNC. Remove stray `pnc-redirect` binary/DB artifacts, keep the runbook on `/opt/tld-redirect/` + `TLD_*`, and treat any customer name in code as a bug.

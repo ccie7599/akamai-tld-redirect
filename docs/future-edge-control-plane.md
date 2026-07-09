@@ -1,5 +1,13 @@
 # Future Direction: Edge-Hosted Control Plane
 
+> **PARKED (2026-07-09) — not part of the PNC delivery.** See ADR-008. Two reasons:
+> Akamai Functions is assumed unavailable in PNC's entitlements, and redirect traffic
+> goes direct to origin (no Akamai edge in the request path for an EdgeWorker to run on).
+> The PNC delivery uses the proven IaaS Go control plane. This design is retained for a
+> possible future optimization if PNC later fronts traffic with an Akamai property or
+> gains Functions entitlement — the Object Storage rule contract remains the stable
+> integration point. Do not treat this as the delivery plan.
+
 ## Concept
 
 Replace the control plane VMs (currently 2x IaaS instances on Linode) with a WebAssembly-based control plane hosted at Akamai's edge. The Linode infrastructure shrinks to data plane serving only.
