@@ -2,6 +2,19 @@
 # Production environment outputs
 # -----------------------------------------------------------------------------
 
+# --- DNS targets for PNC ---
+# NOTE: these are the NB-managed IPs today. Portability (reserved IP) is a
+# pending decision — see ADR-010 draft. Do not hand these to PNC as permanent
+# DNS targets until the portable-IP path is chosen.
+
+output "dns_targets_for_pnc" {
+  description = "NodeBalancer IPs PNC points redirect DNS at (portability pending — ADR-010)"
+  value = {
+    ord = module.ord.nodebalancer_ip
+    iad = module.iad.nodebalancer_ip
+  }
+}
+
 # --- ORD region ---
 
 output "ord_nodebalancer_ip" {
@@ -67,26 +80,6 @@ output "iad_pg_host" {
 }
 
 # --- Object Storage ---
-
-output "objst_bucket" {
-  description = "Object Storage bucket label for redirect rule sync"
-  value       = linode_object_storage_bucket.redirect_sync.label
-}
-
-output "objst_endpoint" {
-  description = "Object Storage bucket hostname"
-  value       = linode_object_storage_bucket.redirect_sync.hostname
-}
-
-output "objst_access_key" {
-  description = "Object Storage access key"
-  value       = linode_object_storage_key.redirect_sync.access_key
-}
-
-output "objst_secret_key" {
-  description = "Object Storage secret key"
-  value       = linode_object_storage_key.redirect_sync.secret_key
-  sensitive   = true
-}
-
-# Akamai DS2 outputs managed in terraform/ root state
+# Not managed here yet — bootstrapped in Brian's personal account and wired via
+# TLD_SYNC_* env until the PNC delegate gets account_object_storage_creator.
+# See the sync bootstrap note in main.tf.

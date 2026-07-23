@@ -30,7 +30,7 @@ variable "control_instance_type" {
 variable "tags" {
   description = "Tags applied to all resources"
   type        = list(string)
-  default     = ["project:tld-redirect", "customer:tld-demo", "owner:brian"]
+  default     = ["project:pnc-redirect", "customer:pnc", "tier:delivery", "owner:brian"]
 }
 
 # --- Akamai / DS2 ---

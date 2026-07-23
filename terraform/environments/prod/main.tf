@@ -7,23 +7,18 @@ terraform {
   required_providers {
     linode = {
       source  = "linode/linode"
-      version = "~> 2.36"
-    }
-    akamai = {
-      source  = "akamai/akamai"
-      version = ">= 6.0.0"
+      version = "~> 2.40"
     }
   }
   required_version = ">= 1.0"
 }
 
 provider "linode" {
-  # Uses LINODE_TOKEN env var
+  # Uses LINODE_TOKEN env var (PNC delegate token for the PNC account)
 }
 
-provider "akamai" {
-  # Uses ~/.edgerc [default] section
-}
+# DNS is owned by PNC — no Akamai/EdgeGrid provider needed. We output the two
+# reserved IPs and PNC creates the redirect + test DNS records themselves.
 
 # -----------------------------------------------------------------------------
 # Region: us-ord (Chicago)
@@ -37,7 +32,7 @@ module "ord" {
   ssh_public_key_path   = var.ssh_public_key_path
   admin_cidrs           = var.admin_cidrs
   data_instance_type    = var.data_instance_type
-  data_instance_count   = 1
+  data_instance_count   = 2
   control_instance_type = var.control_instance_type
   tags                  = var.tags
 }
@@ -54,46 +49,22 @@ module "iad" {
   ssh_public_key_path   = var.ssh_public_key_path
   admin_cidrs           = var.admin_cidrs
   data_instance_type    = var.data_instance_type
-  data_instance_count   = 1
+  data_instance_count   = 2
   control_instance_type = var.control_instance_type
   tags                  = var.tags
 }
 
 # -----------------------------------------------------------------------------
-# DNS — A records for redirect domains and control plane
+# DNS — owned by PNC. Terraform does not create DNS records. The two reserved
+# IPs are exposed via outputs; PNC points redirect + test DNS at them.
 # -----------------------------------------------------------------------------
 
-module "dns" {
-  source = "../../modules/dns"
-
-  a_records = {
-    # Redirect data plane — both region NB IPs for GTM/failover
-    "tld-redirect.connected-cloud.io" = [
-      module.ord.nodebalancer_ip,
-      module.iad.nodebalancer_ip,
-    ]
-
-    # Per-region control plane direct access
-    "tld-control-ord.connected-cloud.io" = [module.ord.control_public_ip]
-    "tld-control-iad.connected-cloud.io" = [module.iad.control_public_ip]
-  }
-}
-
 # -----------------------------------------------------------------------------
-# Object Storage — cross-region redirect rule sync bucket
+# Object Storage — cross-region redirect rule sync
+#
+# NOT managed here yet. The PNC delegate token currently lacks the Object
+# Storage role (account_object_storage_creator), so the bucket is bootstrapped
+# in Brian's personal account and wired via TLD_SYNC_* env on the instances.
+# Once PNC grants the role, add the bucket + key resources here (Option A) or
+# consume a PNC-provided S3 key (Option B), then migrate the sync target.
 # -----------------------------------------------------------------------------
-
-resource "linode_object_storage_bucket" "redirect_sync" {
-  label  = "pnc-redirect-sync"
-  region = "us-ord"
-}
-
-resource "linode_object_storage_key" "redirect_sync" {
-  label = "pnc-redirect-sync-key"
-
-  bucket_access {
-    bucket_name = linode_object_storage_bucket.redirect_sync.label
-    region      = linode_object_storage_bucket.redirect_sync.region
-    permissions = "read_write"
-  }
-}

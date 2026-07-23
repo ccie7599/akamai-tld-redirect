@@ -7,7 +7,7 @@ terraform {
   required_providers {
     linode = {
       source  = "linode/linode"
-      version = "~> 2.36"
+      version = "~> 2.40"
     }
   }
 }
@@ -79,6 +79,11 @@ resource "linode_instance" "control" {
 
 # -----------------------------------------------------------------------------
 # NodeBalancer — TCP passthrough for data plane
+# NOTE: reserved-IP-on-NB is NOT wired here. The Linode API supports assigning a
+# reserved IP to an NB at creation, but the Terraform provider exposes
+# linode_nodebalancer.ipv4 as computed-only (verified on 2.41.2 and 3.14.1), and
+# linode_reserved_ip_assignment targets Linode instances only. Portable-IP path
+# is a pending decision — see DECISIONS ADR-010 draft.
 # -----------------------------------------------------------------------------
 
 resource "linode_nodebalancer" "data" {
