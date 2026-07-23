@@ -111,3 +111,25 @@ Most enterprises evaluating this solution already have Vault deployed. If they d
 **Rationale**: The redirect engine is a reusable asset intended for future customer engagements (per the TSA asset-extraction discipline). Baking `pnc` into the binary, paths, and env prefix would fork the product per customer and re-introduce exactly the drift that broke the demo. Keeping the product generic and pushing customer identity into config (env files, Terraform variables, tags) means one artifact deploys anywhere and deploys are reproducible. The uncommitted `pnc-redirect-sync` bucket rename is therefore correct-as-config; the code default staying `tld-redirect-sync` is correct-as-product (env overrides it per deployment).
 
 **Consequence**: Reconcile all drift to this rule before deploying into PNC. Remove stray `pnc-redirect` binary/DB artifacts, keep the runbook on `/opt/tld-redirect/` + `TLD_*`, and treat any customer name in code as a bug.
+
+---
+
+## ADR-010: Portable Data-Plane Ingress — Reserved IP + NodeBalancer (create-and-import)
+
+**Decision**: Front each region's data plane with a NodeBalancer that carries a portable **Reserved IP**. Because the Terraform provider cannot assign a reserved IP to an NB, the NB is created out-of-band via the Linode API (which does support it) and then `terraform import`-ed into the module's `linode_nodebalancer.data`. The reserved IP is managed **outside** Terraform state so it survives `terraform destroy`. Tooling: `scripts/provision-nb-reserved-ip.sh`.
+
+**Context**: PNC owns DNS and wants a stable target they point to once and never re-point — even across an NB teardown/rebuild. Two candidate designs were considered: (A) NB + reserved IP, and (B) instances + reserved IP + keepalived VIP (no NB). Brian chose A to keep the NB's managed health-checking and failover between the two data VMs.
+
+**The provider constraint (verified, not assumed)**: The Linode API accepts an `ipv4` field on NB create to attach an unassigned reserved IP, and this was confirmed live (reserve IP → `POST /nodebalancers {ipv4}` → NB carries the reserved address). But `linode_nodebalancer.ipv4` is **computed-only** in the Terraform provider — checked against the actual provider schema on both **2.41.2** and the latest **3.14.1** (`optional: null, computed: true`). The provider's `linode_reserved_ip_assignment` resource targets Linode *instances* only, not NBs. So pure-HCL reserved-IP-on-NB is not currently expressible.
+
+**Rationale / validated workflow**:
+1. Reserve an IP in the region (`POST /networking/ips {reserved:true}`) — lives outside TF.
+2. Create the NB with `ipv4=<reserved>` (`POST /nodebalancers`).
+3. `terraform import module.<region>.linode_nodebalancer.data <nb_id>` — verified that `terraform plan` then reports **"No changes"** (the computed `ipv4` does not drift).
+4. `terraform apply` creates the NB configs, nodes, and firewall against the imported NB.
+5. On rebuild, re-run the script with the **same** reserved IP; on full `terraform destroy` the NB releases the IP back to the account unassigned, and it reattaches on the next build — PNC's DNS target is stable.
+6. Release (permanent): `DELETE /networking/reserved-ips/{address}`.
+
+**Open dependency**: The PNC delegate token can read networking (`GET /networking/ips` → 200) but its permission to *reserve* an IP (`POST`) is unconfirmed — the delegate's IAM roles include no explicit networking/IP role. This may be a second role gap after Object Storage (ADR-009 / delegate scoping). Verify at first provisioning; if it 403s, PNC must grant the networking role (mirrors the `account_object_storage_creator` ask).
+
+**Revisit if**: the Terraform provider makes `linode_nodebalancer.ipv4` settable (then fold the assignment into HCL and drop the create-and-import script), or the design moves to keepalived VIP (option B).
