@@ -32,7 +32,8 @@ CGO_ENABLED=0 go build \
 
 echo "==> Deploying ${MODE} plane to ${SERVER_IP}..."
 ssh -o StrictHostKeyChecking=no "${SSH_USER}@${SERVER_IP}" "mkdir -p ${REMOTE_DIR}/data"
-scp -o StrictHostKeyChecking=no "bin/tld-redirect" "${SSH_USER}@${SERVER_IP}:${REMOTE_DIR}/tld-redirect"
+# Stage to a temp name: the final binary may be running (ETXTBSY on direct overwrite).
+scp -o StrictHostKeyChecking=no "bin/tld-redirect" "${SSH_USER}@${SERVER_IP}:${REMOTE_DIR}/tld-redirect.new"
 scp -o StrictHostKeyChecking=no "$SERVICE_FILE" "${SSH_USER}@${SERVER_IP}:/etc/systemd/system/${SERVICE_NAME}.service"
 
 if [ -n "$ENV_FILE" ]; then
@@ -43,6 +44,9 @@ fi
 echo "==> Configuring and starting service..."
 ssh "${SSH_USER}@${SERVER_IP}" bash <<REMOTE
 set -euo pipefail
+
+# Atomically swap the staged binary into place (safe while the old one runs).
+mv -f ${REMOTE_DIR}/tld-redirect.new ${REMOTE_DIR}/tld-redirect
 
 # Allow binding to privileged ports
 setcap cap_net_bind_service=+ep ${REMOTE_DIR}/tld-redirect
