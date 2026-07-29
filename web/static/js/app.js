@@ -271,7 +271,7 @@
                 </div>
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Path</th><th>Target URL</th><th>Code</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead>
+                        <thead><tr><th>Path</th><th>Target URL</th><th>Match</th><th>Code</th><th>Priority</th><th>Status</th><th>Actions</th></tr></thead>
                         <tbody id="rules-tbody"></tbody>
                     </table>
                 </div>
@@ -311,16 +311,23 @@
             const tbody = document.getElementById('rules-tbody');
             const rules = domain.rules || [];
             if (rules.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:1.5rem">No path-level rules. All requests redirect to the default URL.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-secondary);padding:1.5rem">No path-level rules. All requests redirect to the default URL.</td></tr>';
             } else {
-                tbody.innerHTML = rules.map(r => `<tr>
+                tbody.innerHTML = rules.map(r => {
+                    const mt = (r.match_type === 'exact') ? 'exact' : 'prefix';
+                    const flags = [];
+                    if (r.preserve_path) flags.push('<span class="badge badge-neutral" title="preserve path">+path</span>');
+                    if (r.preserve_query) flags.push('<span class="badge badge-neutral" title="preserve query">+query</span>');
+                    return `<tr>
                     <td><code>${esc(r.path)}</code></td>
                     <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(r.target_url)}">${esc(r.target_url)}</td>
+                    <td><span class="badge ${mt === 'exact' ? 'badge-success' : 'badge-neutral'}">${mt}</span> ${flags.join(' ')}</td>
                     <td><span class="badge badge-neutral">${r.status_code}</span></td>
                     <td>${r.priority}</td>
                     <td>${r.enabled ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Off</span>'}</td>
                     <td><button class="btn btn-sm btn-outline" onclick="window._deleteRule(${r.id}, '${esc(name)}')">Delete</button></td>
-                </tr>`).join('');
+                </tr>`;
+                }).join('');
             }
         }
         renderRules();
@@ -331,8 +338,14 @@
                 <div class="rule-form">
                     <input id="rf-path" placeholder="/path" value="/">
                     <input id="rf-url" placeholder="https://target-url.com">
+                    <select id="rf-match" title="Match type">
+                        <option value="prefix">prefix</option>
+                        <option value="exact">exact</option>
+                    </select>
                     <select id="rf-code"><option value="301">301</option><option value="302">302</option></select>
                     <input id="rf-priority" type="number" value="10" placeholder="Priority">
+                    <label class="rf-check" title="Append the unmatched request-path suffix to the target (prefix rules)"><input type="checkbox" id="rf-ppath"> preserve path</label>
+                    <label class="rf-check" title="Forward the original query string to the target"><input type="checkbox" id="rf-pquery"> preserve query</label>
                     <div>
                         <button class="btn btn-sm btn-success" id="rf-save">Add</button>
                         <button class="btn btn-sm btn-outline" onclick="document.getElementById('rule-form-container').innerHTML=''">Cancel</button>
@@ -345,6 +358,9 @@
                         target_url: document.getElementById('rf-url').value,
                         status_code: parseInt(document.getElementById('rf-code').value),
                         priority: parseInt(document.getElementById('rf-priority').value),
+                        match_type: document.getElementById('rf-match').value,
+                        preserve_path: document.getElementById('rf-ppath').checked,
+                        preserve_query: document.getElementById('rf-pquery').checked,
                         enabled: true
                     });
                     domain.rules = domain.rules || [];

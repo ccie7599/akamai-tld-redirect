@@ -414,10 +414,10 @@ tr:last-child td { border-bottom: none; }
 
 /* ─── Inline Rule Form ─── */
 .rule-form {
-    display: grid;
-    grid-template-columns: 2fr 3fr 80px 80px auto;
+    display: flex;
+    flex-wrap: wrap;
     gap: 0.5rem;
-    align-items: end;
+    align-items: center;
     padding: 0.75rem 0;
     border-top: 1px solid var(--border);
 }
@@ -429,6 +429,18 @@ tr:last-child td { border-bottom: none; }
     color: var(--text);
     font-size: 0.85rem;
 }
+.rule-form #rf-path { flex: 1 1 140px; }
+.rule-form #rf-url { flex: 2 1 220px; }
+.rule-form #rf-priority { width: 90px; }
+.rf-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+.rf-check input { width: auto; }
 
 /* ─── Code / Monospace ─── */
 code {
