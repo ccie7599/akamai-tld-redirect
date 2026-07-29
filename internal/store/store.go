@@ -23,25 +23,29 @@ const (
 var migrationsFS embed.FS
 
 type Domain struct {
-	ID         int64  `json:"id"`
-	Name       string `json:"name"`
-	DefaultURL string `json:"default_url"`
-	StatusCode int    `json:"status_code"`
-	Enabled    bool   `json:"enabled"`
-	CreatedAt  string `json:"created_at"`
-	UpdatedAt  string `json:"updated_at"`
+	ID            int64  `json:"id"`
+	Name          string `json:"name"`
+	DefaultURL    string `json:"default_url"`
+	StatusCode    int    `json:"status_code"`
+	Enabled       bool   `json:"enabled"`
+	CaseSensitive bool   `json:"case_sensitive"`
+	CreatedAt     string `json:"created_at"`
+	UpdatedAt     string `json:"updated_at"`
 }
 
 type RedirectRule struct {
-	ID         int64  `json:"id"`
-	DomainID   int64  `json:"domain_id"`
-	Path       string `json:"path"`
-	TargetURL  string `json:"target_url"`
-	StatusCode int    `json:"status_code"`
-	Priority   int    `json:"priority"`
-	Enabled    bool   `json:"enabled"`
-	CreatedAt  string `json:"created_at"`
-	UpdatedAt  string `json:"updated_at"`
+	ID            int64  `json:"id"`
+	DomainID      int64  `json:"domain_id"`
+	Path          string `json:"path"`
+	TargetURL     string `json:"target_url"`
+	StatusCode    int    `json:"status_code"`
+	Priority      int    `json:"priority"`
+	MatchType     string `json:"match_type"`     // "exact" | "prefix"
+	PreservePath  bool   `json:"preserve_path"`  // prefix rules: append unmatched suffix to target
+	PreserveQuery bool   `json:"preserve_query"` // forward original query string
+	Enabled       bool   `json:"enabled"`
+	CreatedAt     string `json:"created_at"`
+	UpdatedAt     string `json:"updated_at"`
 }
 
 type RequestLogEntry struct {
@@ -116,8 +120,42 @@ func (s *Store) migrate() error {
 	if err != nil {
 		return fmt.Errorf("read migration: %w", err)
 	}
-	_, err = s.db.Exec(string(schema))
-	return err
+	if _, err = s.db.Exec(string(schema)); err != nil {
+		return err
+	}
+	return s.applyColumnMigrations()
+}
+
+// applyColumnMigrations adds columns introduced after the initial schema.
+// Idempotent: PG uses IF NOT EXISTS; SQLite tolerates the duplicate-column error.
+func (s *Store) applyColumnMigrations() error {
+	var alters []string
+	if s.dialect == DialectPostgres {
+		alters = []string{
+			"ALTER TABLE redirect_rules ADD COLUMN IF NOT EXISTS match_type TEXT NOT NULL DEFAULT 'prefix'",
+			"ALTER TABLE redirect_rules ADD COLUMN IF NOT EXISTS preserve_path BOOLEAN NOT NULL DEFAULT FALSE",
+			"ALTER TABLE redirect_rules ADD COLUMN IF NOT EXISTS preserve_query BOOLEAN NOT NULL DEFAULT FALSE",
+			"ALTER TABLE domains ADD COLUMN IF NOT EXISTS case_sensitive BOOLEAN NOT NULL DEFAULT TRUE",
+		}
+		for _, a := range alters {
+			if _, err := s.db.Exec(a); err != nil {
+				return fmt.Errorf("column migration: %w", err)
+			}
+		}
+		return nil
+	}
+	alters = []string{
+		"ALTER TABLE redirect_rules ADD COLUMN match_type TEXT NOT NULL DEFAULT 'prefix'",
+		"ALTER TABLE redirect_rules ADD COLUMN preserve_path INTEGER NOT NULL DEFAULT 0",
+		"ALTER TABLE redirect_rules ADD COLUMN preserve_query INTEGER NOT NULL DEFAULT 0",
+		"ALTER TABLE domains ADD COLUMN case_sensitive INTEGER NOT NULL DEFAULT 1",
+	}
+	for _, a := range alters {
+		if _, err := s.db.Exec(a); err != nil && !strings.Contains(err.Error(), "duplicate column") {
+			return fmt.Errorf("column migration: %w", err)
+		}
+	}
+	return nil
 }
 
 // q rewrites ? placeholders to $1, $2, ... for PostgreSQL.
@@ -220,7 +258,7 @@ func (s *Store) ListDomains(search string, limit, offset int) ([]Domain, int, er
 	if limit <= 0 {
 		limit = 50
 	}
-	q := s.q(fmt.Sprintf("SELECT id, name, default_url, status_code, enabled, created_at, updated_at FROM domains %s ORDER BY name LIMIT ? OFFSET ?", where))
+	q := s.q(fmt.Sprintf("SELECT id, name, default_url, status_code, enabled, case_sensitive, created_at, updated_at FROM domains %s ORDER BY name LIMIT ? OFFSET ?", where))
 	args = append(args, limit, offset)
 	rows, err := s.db.Query(q, args...)
 	if err != nil {
@@ -232,7 +270,7 @@ func (s *Store) ListDomains(search string, limit, offset int) ([]Domain, int, er
 	for rows.Next() {
 		var d Domain
 		if err := rows.Scan(&d.ID, &d.Name, &d.DefaultURL, &d.StatusCode,
-			&scanBool{&d.Enabled}, &scanTime{&d.CreatedAt}, &scanTime{&d.UpdatedAt}); err != nil {
+			&scanBool{&d.Enabled}, &scanBool{&d.CaseSensitive}, &scanTime{&d.CreatedAt}, &scanTime{&d.UpdatedAt}); err != nil {
 			return nil, 0, err
 		}
 		domains = append(domains, d)
@@ -243,10 +281,10 @@ func (s *Store) ListDomains(search string, limit, offset int) ([]Domain, int, er
 func (s *Store) GetDomain(name string) (*DomainWithRules, error) {
 	d := &DomainWithRules{}
 	err := s.db.QueryRow(
-		s.q("SELECT id, name, default_url, status_code, enabled, created_at, updated_at FROM domains WHERE name = ?"),
+		s.q("SELECT id, name, default_url, status_code, enabled, case_sensitive, created_at, updated_at FROM domains WHERE name = ?"),
 		name,
 	).Scan(&d.ID, &d.Name, &d.DefaultURL, &d.StatusCode,
-		&scanBool{&d.Enabled}, &scanTime{&d.CreatedAt}, &scanTime{&d.UpdatedAt})
+		&scanBool{&d.Enabled}, &scanBool{&d.CaseSensitive}, &scanTime{&d.CreatedAt}, &scanTime{&d.UpdatedAt})
 	if err != nil {
 		return nil, err
 	}
@@ -262,13 +300,13 @@ func (s *Store) GetDomain(name string) (*DomainWithRules, error) {
 func (s *Store) CreateDomain(d *Domain) error {
 	if s.dialect == DialectPostgres {
 		return s.db.QueryRow(
-			"INSERT INTO domains (name, default_url, status_code, enabled) VALUES ($1, $2, $3, $4) RETURNING id, created_at, updated_at",
-			d.Name, d.DefaultURL, d.StatusCode, d.Enabled,
+			"INSERT INTO domains (name, default_url, status_code, enabled, case_sensitive) VALUES ($1, $2, $3, $4, $5) RETURNING id, created_at, updated_at",
+			d.Name, d.DefaultURL, d.StatusCode, d.Enabled, d.CaseSensitive,
 		).Scan(&d.ID, &scanTime{&d.CreatedAt}, &scanTime{&d.UpdatedAt})
 	}
 	res, err := s.db.Exec(
-		"INSERT INTO domains (name, default_url, status_code, enabled) VALUES (?, ?, ?, ?)",
-		d.Name, d.DefaultURL, d.StatusCode, boolToInt(d.Enabled),
+		"INSERT INTO domains (name, default_url, status_code, enabled, case_sensitive) VALUES (?, ?, ?, ?, ?)",
+		d.Name, d.DefaultURL, d.StatusCode, boolToInt(d.Enabled), boolToInt(d.CaseSensitive),
 	)
 	if err != nil {
 		return err
@@ -278,8 +316,8 @@ func (s *Store) CreateDomain(d *Domain) error {
 }
 
 func (s *Store) UpdateDomain(name string, d *Domain) error {
-	q := fmt.Sprintf("UPDATE domains SET default_url = ?, status_code = ?, enabled = ?, updated_at = %s WHERE name = ?", s.now())
-	_, err := s.db.Exec(s.q(q), d.DefaultURL, d.StatusCode, s.boolVal(d.Enabled), name)
+	q := fmt.Sprintf("UPDATE domains SET default_url = ?, status_code = ?, enabled = ?, case_sensitive = ?, updated_at = %s WHERE name = ?", s.now())
+	_, err := s.db.Exec(s.q(q), d.DefaultURL, d.StatusCode, s.boolVal(d.Enabled), s.boolVal(d.CaseSensitive), name)
 	return err
 }
 
@@ -292,7 +330,7 @@ func (s *Store) DeleteDomain(name string) error {
 
 func (s *Store) ListRules(domainID int64) ([]RedirectRule, error) {
 	rows, err := s.db.Query(
-		s.q("SELECT id, domain_id, path, target_url, status_code, priority, enabled, created_at, updated_at FROM redirect_rules WHERE domain_id = ? ORDER BY priority DESC"),
+		s.q("SELECT id, domain_id, path, target_url, status_code, priority, match_type, preserve_path, preserve_query, enabled, created_at, updated_at FROM redirect_rules WHERE domain_id = ? ORDER BY priority DESC"),
 		domainID,
 	)
 	if err != nil {
@@ -304,6 +342,7 @@ func (s *Store) ListRules(domainID int64) ([]RedirectRule, error) {
 	for rows.Next() {
 		var r RedirectRule
 		if err := rows.Scan(&r.ID, &r.DomainID, &r.Path, &r.TargetURL, &r.StatusCode, &r.Priority,
+			&r.MatchType, &scanBool{&r.PreservePath}, &scanBool{&r.PreserveQuery},
 			&scanBool{&r.Enabled}, &scanTime{&r.CreatedAt}, &scanTime{&r.UpdatedAt}); err != nil {
 			return nil, err
 		}
@@ -313,15 +352,16 @@ func (s *Store) ListRules(domainID int64) ([]RedirectRule, error) {
 }
 
 func (s *Store) CreateRule(r *RedirectRule) error {
+	mt := normalizeMatchType(r.MatchType)
 	if s.dialect == DialectPostgres {
 		return s.db.QueryRow(
-			"INSERT INTO redirect_rules (domain_id, path, target_url, status_code, priority, enabled) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
-			r.DomainID, r.Path, r.TargetURL, r.StatusCode, r.Priority, r.Enabled,
+			"INSERT INTO redirect_rules (domain_id, path, target_url, status_code, priority, match_type, preserve_path, preserve_query, enabled) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id",
+			r.DomainID, r.Path, r.TargetURL, r.StatusCode, r.Priority, mt, r.PreservePath, r.PreserveQuery, r.Enabled,
 		).Scan(&r.ID)
 	}
 	res, err := s.db.Exec(
-		"INSERT INTO redirect_rules (domain_id, path, target_url, status_code, priority, enabled) VALUES (?, ?, ?, ?, ?, ?)",
-		r.DomainID, r.Path, r.TargetURL, r.StatusCode, r.Priority, boolToInt(r.Enabled),
+		"INSERT INTO redirect_rules (domain_id, path, target_url, status_code, priority, match_type, preserve_path, preserve_query, enabled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+		r.DomainID, r.Path, r.TargetURL, r.StatusCode, r.Priority, mt, boolToInt(r.PreservePath), boolToInt(r.PreserveQuery), boolToInt(r.Enabled),
 	)
 	if err != nil {
 		return err
@@ -331,9 +371,18 @@ func (s *Store) CreateRule(r *RedirectRule) error {
 }
 
 func (s *Store) UpdateRule(id int64, r *RedirectRule) error {
-	q := fmt.Sprintf("UPDATE redirect_rules SET path = ?, target_url = ?, status_code = ?, priority = ?, enabled = ?, updated_at = %s WHERE id = ?", s.now())
-	_, err := s.db.Exec(s.q(q), r.Path, r.TargetURL, r.StatusCode, r.Priority, s.boolVal(r.Enabled), id)
+	q := fmt.Sprintf("UPDATE redirect_rules SET path = ?, target_url = ?, status_code = ?, priority = ?, match_type = ?, preserve_path = ?, preserve_query = ?, enabled = ?, updated_at = %s WHERE id = ?", s.now())
+	_, err := s.db.Exec(s.q(q), r.Path, r.TargetURL, r.StatusCode, r.Priority, normalizeMatchType(r.MatchType), s.boolVal(r.PreservePath), s.boolVal(r.PreserveQuery), s.boolVal(r.Enabled), id)
 	return err
+}
+
+// normalizeMatchType defaults blank/invalid match types to "prefix" (preserves
+// the engine's historical prefix behavior for rules that don't specify one).
+func normalizeMatchType(mt string) string {
+	if mt == "exact" {
+		return "exact"
+	}
+	return "prefix"
 }
 
 func (s *Store) DeleteRule(id int64) error {
@@ -350,19 +399,31 @@ func (s *Store) GetRuleDomainID(ruleID int64) (int64, error) {
 // --- Bulk operations ---
 
 type ImportEntry struct {
-	DomainName string       `json:"domain"`
-	DefaultURL string       `json:"default_url"`
-	StatusCode int          `json:"status_code"`
-	Enabled    *bool        `json:"enabled,omitempty"`
-	Rules      []ImportRule `json:"rules"`
+	DomainName    string       `json:"domain"`
+	DefaultURL    string       `json:"default_url"`
+	StatusCode    int          `json:"status_code"`
+	Enabled       *bool        `json:"enabled,omitempty"`
+	CaseSensitive *bool        `json:"case_sensitive,omitempty"`
+	Rules         []ImportRule `json:"rules"`
 }
 
 type ImportRule struct {
-	Path       string `json:"path"`
-	TargetURL  string `json:"target_url"`
-	StatusCode int    `json:"status_code"`
-	Priority   int    `json:"priority"`
-	Enabled    *bool  `json:"enabled,omitempty"`
+	Path          string `json:"path"`
+	TargetURL     string `json:"target_url"`
+	StatusCode    int    `json:"status_code"`
+	Priority      int    `json:"priority"`
+	MatchType     string `json:"match_type,omitempty"`
+	PreservePath  bool   `json:"preserve_path,omitempty"`
+	PreserveQuery bool   `json:"preserve_query,omitempty"`
+	Enabled       *bool  `json:"enabled,omitempty"`
+}
+
+// caseSensitive defaults to true (RFC-correct) when unset on import.
+func caseSensitive(b *bool) bool {
+	if b == nil {
+		return true
+	}
+	return *b
 }
 
 // importEnabled returns the enabled value from an import entry, defaulting to true if not set.
@@ -389,11 +450,12 @@ func (s *Store) BulkImport(entries []ImportEntry) (int, error) {
 			sc = 301
 		}
 
+		cs := caseSensitive(e.CaseSensitive)
 		var domainID int64
 		if s.dialect == DialectPostgres {
 			err := tx.QueryRow(
-				"INSERT INTO domains (name, default_url, status_code, enabled) VALUES ($1, $2, $3, TRUE) ON CONFLICT (name) DO NOTHING RETURNING id",
-				e.DomainName, e.DefaultURL, sc,
+				"INSERT INTO domains (name, default_url, status_code, enabled, case_sensitive) VALUES ($1, $2, $3, TRUE, $4) ON CONFLICT (name) DO NOTHING RETURNING id",
+				e.DomainName, e.DefaultURL, sc, cs,
 			).Scan(&domainID)
 			if err == sql.ErrNoRows {
 				if err := tx.QueryRow("SELECT id FROM domains WHERE name = $1", e.DomainName).Scan(&domainID); err != nil {
@@ -404,8 +466,8 @@ func (s *Store) BulkImport(entries []ImportEntry) (int, error) {
 			}
 		} else {
 			res, err := tx.Exec(
-				"INSERT OR IGNORE INTO domains (name, default_url, status_code, enabled) VALUES (?, ?, ?, 1)",
-				e.DomainName, e.DefaultURL, sc,
+				"INSERT OR IGNORE INTO domains (name, default_url, status_code, enabled, case_sensitive) VALUES (?, ?, ?, 1, ?)",
+				e.DomainName, e.DefaultURL, sc, boolToInt(cs),
 			)
 			if err != nil {
 				return 0, fmt.Errorf("insert domain %s: %w", e.DomainName, err)
@@ -424,15 +486,16 @@ func (s *Store) BulkImport(entries []ImportEntry) (int, error) {
 			if rsc == 0 {
 				rsc = 301
 			}
+			mt := normalizeMatchType(r.MatchType)
 			if s.dialect == DialectPostgres {
 				_, err = tx.Exec(
-					"INSERT INTO redirect_rules (domain_id, path, target_url, status_code, priority, enabled) VALUES ($1, $2, $3, $4, $5, TRUE) ON CONFLICT (domain_id, path) DO NOTHING",
-					domainID, r.Path, r.TargetURL, rsc, r.Priority,
+					"INSERT INTO redirect_rules (domain_id, path, target_url, status_code, priority, match_type, preserve_path, preserve_query, enabled) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, TRUE) ON CONFLICT (domain_id, path) DO NOTHING",
+					domainID, r.Path, r.TargetURL, rsc, r.Priority, mt, r.PreservePath, r.PreserveQuery,
 				)
 			} else {
 				_, err = tx.Exec(
-					"INSERT OR IGNORE INTO redirect_rules (domain_id, path, target_url, status_code, priority, enabled) VALUES (?, ?, ?, ?, ?, 1)",
-					domainID, r.Path, r.TargetURL, rsc, r.Priority,
+					"INSERT OR IGNORE INTO redirect_rules (domain_id, path, target_url, status_code, priority, match_type, preserve_path, preserve_query, enabled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)",
+					domainID, r.Path, r.TargetURL, rsc, r.Priority, mt, boolToInt(r.PreservePath), boolToInt(r.PreserveQuery),
 				)
 			}
 			if err != nil {
@@ -463,24 +526,25 @@ func (s *Store) BulkImportReplace(entries []ImportEntry) error {
 			sc = 301
 		}
 		enabled := importEnabled(e.Enabled)
+		cs := caseSensitive(e.CaseSensitive)
 		importedDomains[e.DomainName] = true
 
 		var domainID int64
 		if s.dialect == DialectPostgres {
 			err := tx.QueryRow(
-				`INSERT INTO domains (name, default_url, status_code, enabled)
-				 VALUES ($1, $2, $3, $4)
-				 ON CONFLICT (name) DO UPDATE SET default_url = $2, status_code = $3, enabled = $4, updated_at = NOW()
+				`INSERT INTO domains (name, default_url, status_code, enabled, case_sensitive)
+				 VALUES ($1, $2, $3, $4, $5)
+				 ON CONFLICT (name) DO UPDATE SET default_url = $2, status_code = $3, enabled = $4, case_sensitive = $5, updated_at = NOW()
 				 RETURNING id`,
-				e.DomainName, e.DefaultURL, sc, enabled,
+				e.DomainName, e.DefaultURL, sc, enabled, cs,
 			).Scan(&domainID)
 			if err != nil {
 				return fmt.Errorf("upsert domain %s: %w", e.DomainName, err)
 			}
 		} else {
 			_, err := tx.Exec(
-				"INSERT INTO domains (name, default_url, status_code, enabled) VALUES (?, ?, ?, ?) ON CONFLICT(name) DO UPDATE SET default_url = excluded.default_url, status_code = excluded.status_code, enabled = excluded.enabled, updated_at = datetime('now')",
-				e.DomainName, e.DefaultURL, sc, boolToInt(enabled),
+				"INSERT INTO domains (name, default_url, status_code, enabled, case_sensitive) VALUES (?, ?, ?, ?, ?) ON CONFLICT(name) DO UPDATE SET default_url = excluded.default_url, status_code = excluded.status_code, enabled = excluded.enabled, case_sensitive = excluded.case_sensitive, updated_at = datetime('now')",
+				e.DomainName, e.DefaultURL, sc, boolToInt(enabled), boolToInt(cs),
 			)
 			if err != nil {
 				return fmt.Errorf("upsert domain %s: %w", e.DomainName, err)
@@ -496,19 +560,20 @@ func (s *Store) BulkImportReplace(entries []ImportEntry) error {
 				rsc = 301
 			}
 			rEnabled := importEnabled(r.Enabled)
+			mt := normalizeMatchType(r.MatchType)
 			importedRules[fmt.Sprintf("%d:%s", domainID, r.Path)] = true
 
 			if s.dialect == DialectPostgres {
 				_, err = tx.Exec(
-					`INSERT INTO redirect_rules (domain_id, path, target_url, status_code, priority, enabled)
-					 VALUES ($1, $2, $3, $4, $5, $6)
-					 ON CONFLICT (domain_id, path) DO UPDATE SET target_url = $3, status_code = $4, priority = $5, enabled = $6, updated_at = NOW()`,
-					domainID, r.Path, r.TargetURL, rsc, r.Priority, rEnabled,
+					`INSERT INTO redirect_rules (domain_id, path, target_url, status_code, priority, match_type, preserve_path, preserve_query, enabled)
+					 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+					 ON CONFLICT (domain_id, path) DO UPDATE SET target_url = $3, status_code = $4, priority = $5, match_type = $6, preserve_path = $7, preserve_query = $8, enabled = $9, updated_at = NOW()`,
+					domainID, r.Path, r.TargetURL, rsc, r.Priority, mt, r.PreservePath, r.PreserveQuery, rEnabled,
 				)
 			} else {
 				_, err = tx.Exec(
-					"INSERT INTO redirect_rules (domain_id, path, target_url, status_code, priority, enabled) VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(domain_id, path) DO UPDATE SET target_url = excluded.target_url, status_code = excluded.status_code, priority = excluded.priority, enabled = excluded.enabled, updated_at = datetime('now')",
-					domainID, r.Path, r.TargetURL, rsc, r.Priority, boolToInt(rEnabled),
+					"INSERT INTO redirect_rules (domain_id, path, target_url, status_code, priority, match_type, preserve_path, preserve_query, enabled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(domain_id, path) DO UPDATE SET target_url = excluded.target_url, status_code = excluded.status_code, priority = excluded.priority, match_type = excluded.match_type, preserve_path = excluded.preserve_path, preserve_query = excluded.preserve_query, enabled = excluded.enabled, updated_at = datetime('now')",
+					domainID, r.Path, r.TargetURL, rsc, r.Priority, mt, boolToInt(r.PreservePath), boolToInt(r.PreserveQuery), boolToInt(rEnabled),
 				)
 			}
 			if err != nil {
@@ -582,18 +647,22 @@ func (s *Store) ExportAll() ([]ImportEntry, error) {
 			return nil, err
 		}
 		e := ImportEntry{
-			DomainName: d.Name,
-			DefaultURL: d.DefaultURL,
-			StatusCode: d.StatusCode,
-			Enabled:    boolPtr(d.Enabled),
+			DomainName:    d.Name,
+			DefaultURL:    d.DefaultURL,
+			StatusCode:    d.StatusCode,
+			Enabled:       boolPtr(d.Enabled),
+			CaseSensitive: boolPtr(d.CaseSensitive),
 		}
 		for _, r := range rules {
 			e.Rules = append(e.Rules, ImportRule{
-				Path:       r.Path,
-				TargetURL:  r.TargetURL,
-				StatusCode: r.StatusCode,
-				Priority:   r.Priority,
-				Enabled:    boolPtr(r.Enabled),
+				Path:          r.Path,
+				TargetURL:     r.TargetURL,
+				StatusCode:    r.StatusCode,
+				Priority:      r.Priority,
+				MatchType:     normalizeMatchType(r.MatchType),
+				PreservePath:  r.PreservePath,
+				PreserveQuery: r.PreserveQuery,
+				Enabled:       boolPtr(r.Enabled),
 			})
 		}
 		entries = append(entries, e)

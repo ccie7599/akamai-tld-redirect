@@ -11,16 +11,20 @@ import (
 )
 
 type rule struct {
-	Path       string
-	TargetURL  string
-	StatusCode int
-	Priority   int
+	Path          string
+	TargetURL     string
+	StatusCode    int
+	Priority      int
+	PreservePath  bool
+	PreserveQuery bool
 }
 
 type domainEntry struct {
-	DefaultURL string
-	StatusCode int
-	Rules      []rule
+	DefaultURL    string
+	StatusCode    int
+	CaseSensitive bool
+	exact         map[string]rule // exact rules keyed by (normalized) path
+	prefixes      []rule          // prefix rules, sorted longest-path first
 }
 
 type Engine struct {
@@ -55,8 +59,10 @@ func (e *Engine) Reload() error {
 			continue
 		}
 		entry := &domainEntry{
-			DefaultURL: d.DefaultURL,
-			StatusCode: d.StatusCode,
+			DefaultURL:    d.DefaultURL,
+			StatusCode:    d.StatusCode,
+			CaseSensitive: d.CaseSensitive,
+			exact:         make(map[string]rule),
 		}
 		rules, err := e.store.ListRules(d.ID)
 		if err != nil {
@@ -67,17 +73,32 @@ func (e *Engine) Reload() error {
 			if !r.Enabled {
 				continue
 			}
-			entry.Rules = append(entry.Rules, rule{
-				Path:       r.Path,
-				TargetURL:  r.TargetURL,
-				StatusCode: r.StatusCode,
-				Priority:   r.Priority,
-			})
+			p := normalizePath(r.Path)
+			if !d.CaseSensitive {
+				p = strings.ToLower(p)
+			}
+			cr := rule{
+				Path:          p,
+				TargetURL:     r.TargetURL,
+				StatusCode:    r.StatusCode,
+				Priority:      r.Priority,
+				PreservePath:  r.PreservePath,
+				PreserveQuery: r.PreserveQuery,
+			}
+			if r.MatchType == "exact" {
+				entry.exact[p] = cr
+			} else {
+				entry.prefixes = append(entry.prefixes, cr)
+			}
 		}
-		sort.Slice(entry.Rules, func(i, j int) bool {
-			return entry.Rules[i].Priority > entry.Rules[j].Priority
+		// Longest path first; priority breaks ties between equal-length prefixes.
+		sort.Slice(entry.prefixes, func(i, j int) bool {
+			if len(entry.prefixes[i].Path) != len(entry.prefixes[j].Path) {
+				return len(entry.prefixes[i].Path) > len(entry.prefixes[j].Path)
+			}
+			return entry.prefixes[i].Priority > entry.prefixes[j].Priority
 		})
-		newMap[d.Name] = entry
+		newMap[strings.ToLower(d.Name)] = entry
 	}
 
 	e.mu.Lock()
@@ -88,7 +109,7 @@ func (e *Engine) Reload() error {
 }
 
 func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	host := stripPort(r.Host)
+	host := strings.ToLower(stripPort(r.Host))
 
 	e.mu.RLock()
 	entry, ok := e.domains[host]
@@ -99,22 +120,28 @@ func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	targetURL := entry.DefaultURL
-	statusCode := entry.StatusCode
-	path := r.URL.Path
+	reqPath := normalizePath(r.URL.Path)
+	lookup := reqPath
+	if !entry.CaseSensitive {
+		lookup = strings.ToLower(reqPath)
+	}
 
-	for _, rule := range entry.Rules {
-		if matchPath(rule.Path, path) {
-			targetURL = rule.TargetURL
-			statusCode = rule.StatusCode
-			break
-		}
+	// Resolve: exact match first, then longest-prefix, else domain default.
+	matched, ok := entry.match(lookup)
+	var targetURL string
+	var statusCode int
+	if ok {
+		statusCode = matched.StatusCode
+		targetURL = buildLocation(matched, reqPath, r.URL.RawQuery)
+	} else {
+		targetURL = entry.DefaultURL
+		statusCode = entry.StatusCode
 	}
 
 	// Async log
 	logEntry := store.RequestLogEntry{
 		Domain:    host,
-		Path:      path,
+		Path:      reqPath,
 		Query:     r.URL.RawQuery,
 		Status:    statusCode,
 		TargetURL: targetURL,
@@ -136,26 +163,66 @@ func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, targetURL, statusCode)
 }
 
+// match returns the winning rule for an (already case-folded) lookup path:
+// exact match wins, then the longest matching prefix.
+func (d *domainEntry) match(lookup string) (rule, bool) {
+	if r, ok := d.exact[lookup]; ok {
+		return r, true
+	}
+	for _, r := range d.prefixes { // pre-sorted longest-first
+		if lookup == r.Path || strings.HasPrefix(lookup, r.Path+"/") {
+			return r, true
+		}
+	}
+	return rule{}, false
+}
+
+// buildLocation constructs the redirect target, applying preserve_path (append
+// the unmatched suffix of the request path) and preserve_query.
+func buildLocation(r rule, reqPath, rawQuery string) string {
+	loc := r.TargetURL
+	if r.PreservePath && len(reqPath) > len(r.Path) {
+		suffix := reqPath[len(r.Path):]
+		loc = strings.TrimSuffix(loc, "/") + suffix
+	}
+	if r.PreserveQuery && rawQuery != "" {
+		if strings.Contains(loc, "?") {
+			loc += "&" + rawQuery
+		} else {
+			loc += "?" + rawQuery
+		}
+	}
+	return loc
+}
+
 func (e *Engine) SetBeaconCh(ch chan<- store.RequestLogEntry) {
 	e.beaconCh = ch
 }
 
 func (e *Engine) HasDomain(host string) bool {
 	e.mu.RLock()
-	_, ok := e.domains[stripPort(host)]
+	_, ok := e.domains[strings.ToLower(stripPort(host))]
 	e.mu.RUnlock()
 	return ok
 }
 
-func matchPath(pattern, path string) bool {
-	if pattern == path {
-		return true
+// normalizePath ensures a leading slash, collapses repeated slashes, and strips
+// a trailing slash (except for root). Mirrors the redirect-functions normalizer.
+func normalizePath(raw string) string {
+	p := raw
+	if p == "" {
+		return "/"
 	}
-	// Prefix match: pattern "/mortgage" matches "/mortgage/rates"
-	if strings.HasSuffix(pattern, "/") {
-		return strings.HasPrefix(path, pattern)
+	if !strings.HasPrefix(p, "/") {
+		p = "/" + p
 	}
-	return strings.HasPrefix(path, pattern+"/") || path == pattern
+	for strings.Contains(p, "//") {
+		p = strings.ReplaceAll(p, "//", "/")
+	}
+	if len(p) > 1 && strings.HasSuffix(p, "/") {
+		p = strings.TrimSuffix(p, "/")
+	}
+	return p
 }
 
 func stripPort(host string) string {

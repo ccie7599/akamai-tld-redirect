@@ -133,3 +133,27 @@ Most enterprises evaluating this solution already have Vault deployed. If they d
 **Open dependency**: The PNC delegate token can read networking (`GET /networking/ips` → 200) but its permission to *reserve* an IP (`POST`) is unconfirmed — the delegate's IAM roles include no explicit networking/IP role. This may be a second role gap after Object Storage (ADR-009 / delegate scoping). Verify at first provisioning; if it 403s, PNC must grant the networking role (mirrors the `account_object_storage_creator` ask).
 
 **Revisit if**: the Terraform provider makes `linode_nodebalancer.ipv4` settable (then fold the assignment into HCL and drop the create-and-import script), or the design moves to keepalived VIP (option B).
+
+---
+
+## ADR-011: Redirect Matching Semantics — Ported from project-redirect-functions
+
+**Decision**: Replace the engine's simple first-match prefix logic with the richer, proven matcher from `project-redirect-functions`: explicit **match types** (exact | prefix), **longest-prefix-wins** priority, **preserve_path**, **preserve_query**, per-domain **case sensitivity**, and **path normalization**.
+
+**Context**: The prior engine did first-rule-in-array prefix matching and always redirected to the flat `target_url`. For 2000+ vanity domains this was insufficient: no path preservation (`old.com/accounts/login` couldn't map to `new.com/accounts/login`), and rule precedence depended on array order rather than specificity (a latent correctness bug). `project-redirect-functions` already solved this for another engagement; PNC asked to bring that logic here. Full parity was chosen (see conversation) over a subset.
+
+**Semantics** (Go reimplementation of the Rust/JS original, not a copy):
+- **Normalization**: ensure leading `/`, collapse `//`, strip trailing `/` (except root); host lowercased + port stripped.
+- **Resolution order**: exact match first (O(1) map), then the **longest** matching prefix (rules pre-sorted by path length at load; `priority` breaks ties between equal-length prefixes), else the domain's `default_url`.
+- **preserve_path** (prefix rules): append the unmatched request-path suffix to the target (`/blog` → `new.com/articles`, request `/blog/2024/x` → `new.com/articles/2024/x`).
+- **preserve_query**: forward the original query string.
+- **case_sensitive** (per domain): when false, paths are folded to lowercase for matching; the original-case suffix is still used for `preserve_path`.
+
+**Data model**: `redirect_rules` gains `match_type TEXT DEFAULT 'prefix'`, `preserve_path`, `preserve_query`; `domains` gains `case_sensitive DEFAULT true`. Added via idempotent `applyColumnMigrations()` (PG `ADD COLUMN IF NOT EXISTS`; SQLite tolerates duplicate-column) so existing deployments migrate in place. Fields flow through the admin API, single-create (defaults `case_sensitive` true, RFC-correct), and — importantly — the `rules.json` bulk import/export used for cross-region sync, so all nodes converge on identical matching.
+
+**Divergences from the source / notes**:
+- **match_type defaults to `prefix`** here (not the source's `exact`) to preserve the previous engine's behavior for rules that don't specify one; imports should set it explicitly. The seeded demo rules keep working unchanged.
+- **Domain-level default redirect stays a flat redirect** to `default_url` (no path preservation) — preserving existing behavior. Path preservation is a per-rule opt-in.
+- Covered by `internal/redirect/matcher_test.go` (exact, longest-prefix, preserve_path, preserve_query, case-insensitivity, normalization).
+
+**Deploy note**: live nodes need a redeploy of the new binary; the column migrations run automatically at startup against the existing PG.

@@ -89,19 +89,30 @@ func (h *Handler) listDomains(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) createDomain(w http.ResponseWriter, r *http.Request) {
-	var d store.Domain
-	if err := json.NewDecoder(r.Body).Decode(&d); err != nil {
+	var in struct {
+		Name          string `json:"name"`
+		DefaultURL    string `json:"default_url"`
+		StatusCode    int    `json:"status_code"`
+		CaseSensitive *bool  `json:"case_sensitive"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid JSON")
 		return
 	}
-	if d.Name == "" || d.DefaultURL == "" {
+	if in.Name == "" || in.DefaultURL == "" {
 		writeError(w, http.StatusBadRequest, "name and default_url are required")
 		return
+	}
+	d := store.Domain{
+		Name:          in.Name,
+		DefaultURL:    in.DefaultURL,
+		StatusCode:    in.StatusCode,
+		Enabled:       true,
+		CaseSensitive: in.CaseSensitive == nil || *in.CaseSensitive, // RFC-correct default: true
 	}
 	if d.StatusCode == 0 {
 		d.StatusCode = 301
 	}
-	d.Enabled = true
 
 	if err := h.store.CreateDomain(&d); err != nil {
 		if strings.Contains(err.Error(), "UNIQUE") || strings.Contains(err.Error(), "unique") || strings.Contains(err.Error(), "duplicate") {
