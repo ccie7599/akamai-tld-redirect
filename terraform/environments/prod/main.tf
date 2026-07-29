@@ -31,6 +31,7 @@ module "ord" {
   region_label          = "ord"
   ssh_public_key_path   = var.ssh_public_key_path
   admin_cidrs           = var.admin_cidrs
+  ui_cidrs              = var.ui_cidrs
   data_instance_type    = var.data_instance_type
   data_instance_count   = 2
   control_instance_type = var.control_instance_type
@@ -48,6 +49,7 @@ module "iad" {
   region_label          = "iad"
   ssh_public_key_path   = var.ssh_public_key_path
   admin_cidrs           = var.admin_cidrs
+  ui_cidrs              = var.ui_cidrs
   data_instance_type    = var.data_instance_type
   data_instance_count   = 2
   control_instance_type = var.control_instance_type

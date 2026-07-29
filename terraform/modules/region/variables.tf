@@ -18,6 +18,12 @@ variable "admin_cidrs" {
   type        = list(string)
 }
 
+variable "ui_cidrs" {
+  description = "Additional CIDRs allowed to reach the control plane admin UI/API on :443 only (NOT SSH). E.g. customer proxy egress ranges."
+  type        = list(string)
+  default     = []
+}
+
 variable "data_instance_type" {
   description = "Linode instance type for data plane nodes"
   type        = string

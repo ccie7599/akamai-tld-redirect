@@ -222,7 +222,7 @@ resource "linode_firewall" "control" {
     action   = "ACCEPT"
     protocol = "TCP"
     ports    = "443"
-    ipv4     = var.admin_cidrs
+    ipv4     = concat(var.admin_cidrs, var.ui_cidrs)
   }
 
   inbound {
