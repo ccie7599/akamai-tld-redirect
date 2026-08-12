@@ -90,7 +90,7 @@ Installs binary at `/opt/tld-redirect/tld-redirect`, service at
 
 **Control plane:**
 ```
-TLD_DB_URL=postgresql://akmadmin:<pass>@<pg-ipv4>:20253/defaultdb?sslmode=require
+TLD_DB_URL=postgresql://akmadmin:<pass>@<pg-hostname>:20253/defaultdb?sslmode=require
 TLD_ADMIN_TOKEN=<openssl rand -hex 32>          # unset/"changeme" is refused (fail-closed)
 TLD_ADMIN_DOMAIN=<ip-dashed>.ip.linodeusercontent.com   # resolvable -> real ACME cert
 TLD_SYNC_ENDPOINT=https://us-ord-1.linodeobjects.com
@@ -103,8 +103,11 @@ TLD_SYNC_REGION=us-ord-1
 **Data plane:** same as above minus `TLD_ADMIN_TOKEN`. `TLD_DS2_ENDPOINT` is intentionally
 unset — observability sink is TBD with PNC.
 
-Note: **PG port is 20253** (read it from state — do not assume) and **use the PG IPv4, not
-the hostname** (Ubuntu 24.04 prefers the AAAA record, which isn't in the allow_list).
+Note: **PG port is 20253** (read it from state — do not assume). **Use the PG hostname**, not
+a hardcoded IP — `NewPG` forces IPv4 resolution (the DBaaS hostname's AAAA isn't in the
+allow_list, and a `CGO_ENABLED=0` binary ignores `/etc/gai.conf`), so the stable hostname
+self-heals when DBaaS rotates the IP on maintenance. Hardcoding the IP breaks on the next
+maintenance event — this took the ORD control plane down once.
 
 ### Get PG Connection Details
 
@@ -119,7 +122,7 @@ for r in state['resources']:
         label = 'ORD' if 'ord' in r['module'] else 'IAD'
         print(f'{label}: host={a[\"host_primary\"]} port={a[\"port\"]} user={a[\"root_username\"]} pass={a[\"root_password\"]}')
 "
-dig +short <pg-hostname> | head -1   # resolve the IPv4 for TLD_DB_URL
+# Use host_primary (the hostname) directly in TLD_DB_URL — the app forces IPv4 resolution.
 ```
 
 ### Seed Data
@@ -223,8 +226,9 @@ The personal-account bootstrap bucket/key are separate — clean those up in the
 
 ## Known Issues
 
-1. **PG port + IPv4**: port is 20253 (from state), and connection strings must use the PG
-   IPv4 — Ubuntu 24.04 prefers the AAAA record, which isn't in the allow_list.
+1. **PG connectivity**: port is 20253 (from state). Use the PG *hostname* in TLD_DB_URL —
+   `NewPG` forces IPv4 resolution so the stable hostname self-heals across DBaaS IP changes.
+   (Hardcoding the IP previously broke the ORD control plane on a maintenance IP change.)
 2. **Reserved-IP-on-NB not in Terraform**: provider `linode_nodebalancer.ipv4` is
    computed-only (2.41.2 and 3.14.1) — use the create-and-import flow (ADR-010).
 3. **Delegate role gaps**: no Object Storage or networking/IP role — hence the personal

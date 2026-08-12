@@ -1,13 +1,16 @@
 package store
 
 import (
+	"context"
 	"database/sql"
 	"embed"
 	"fmt"
+	"net"
 	"strings"
 	"time"
 
-	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -87,8 +90,30 @@ func New(dbPath string) (*Store, error) {
 }
 
 // NewPG creates a Store backed by PostgreSQL.
+//
+// It forces IPv4 resolution: the Linode DBaaS hostname publishes an AAAA record
+// that is NOT in the database allow_list (IPv4 CIDRs only), and a CGO_ENABLED=0
+// binary ignores /etc/gai.conf, so the default resolver would prefer the IPv6
+// address and time out. Resolving A-records only lets the connection string use
+// the stable *hostname* instead of a hardcoded IP — the pool re-resolves on each
+// new connection, so a DBaaS maintenance IP change self-heals with no redeploy.
 func NewPG(connStr string) (*Store, error) {
-	db, err := sql.Open("pgx", connStr)
+	config, err := pgx.ParseConfig(connStr)
+	if err != nil {
+		return nil, fmt.Errorf("parse pg config: %w", err)
+	}
+	config.LookupFunc = func(ctx context.Context, host string) ([]string, error) {
+		ips, err := net.DefaultResolver.LookupIP(ctx, "ip4", host)
+		if err != nil {
+			return nil, err
+		}
+		addrs := make([]string, len(ips))
+		for i, ip := range ips {
+			addrs[i] = ip.String()
+		}
+		return addrs, nil
+	}
+	db, err := sql.Open("pgx", stdlib.RegisterConnConfig(config))
 	if err != nil {
 		return nil, fmt.Errorf("open pg: %w", err)
 	}
