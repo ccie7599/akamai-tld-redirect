@@ -101,6 +101,8 @@
                 await renderDomainDetail(app, name);
             } else if (path === '/analytics') {
                 await renderAnalytics(app);
+            } else if (path === '/certs') {
+                await renderCerts(app);
             } else if (path === '/import') {
                 renderImport(app);
             } else if (path === '/docs') {
@@ -518,6 +520,33 @@
     }
 
     // ─── Import View ───
+    async function renderCerts(app) {
+        const certs = await api.get('/certs');
+        app.innerHTML = `
+            <div class="page-header"><h1>Certificates</h1></div>
+            <div class="card">
+                <div class="card-header"><h3>Issued TLS certificates</h3></div>
+                <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:1rem">
+                    Certificates are issued automatically (Let's Encrypt) the first time a domain is served over HTTPS — which requires that domain's DNS to point at the serving IPs. A domain not listed here yet hasn't been requested over HTTPS, or its DNS isn't pointed at the serving IPs.
+                </p>
+                <div class="table-wrap"><table>
+                    <thead><tr><th>Domain</th><th>Issuer</th><th>Issued</th><th>Expires</th><th>Days left</th><th>Status</th></tr></thead>
+                    <tbody>${
+                        certs.length === 0
+                        ? '<tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:1.5rem">No certificates issued yet — point a domain\'s DNS at the serving IPs and request it over HTTPS to trigger issuance.</td></tr>'
+                        : certs.map(c => `<tr>
+                            <td><code>${esc(c.domain)}</code></td>
+                            <td>${esc(c.issuer || '')}</td>
+                            <td>${(c.not_before || '').slice(0,10)}</td>
+                            <td>${(c.not_after || '').slice(0,10)}</td>
+                            <td>${c.days_left}</td>
+                            <td>${c.expired ? '<span class="badge badge-danger">Expired</span>' : '<span class="badge badge-success">Valid</span>'}</td>
+                        </tr>`).join('')
+                    }</tbody>
+                </table></div>
+            </div>`;
+    }
+
     function renderImport(app) {
         app.innerHTML = `
             <div class="page-header"><h1>Bulk Import</h1></div>

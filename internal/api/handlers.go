@@ -59,6 +59,8 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("POST /api/v1/import", h.bulkImport)
 	mux.HandleFunc("GET /api/v1/export", h.export)
 
+	mux.HandleFunc("GET /api/v1/certs", h.listCerts)
+
 	mux.HandleFunc("GET /api/v1/analytics/summary", h.analyticsSummary)
 	mux.HandleFunc("GET /api/v1/analytics/domains/{domain}", h.analyticsDomain)
 	mux.HandleFunc("GET /api/v1/analytics/domains/{domain}/paths", h.analyticsPaths)
@@ -66,6 +68,17 @@ func (h *Handler) Register(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/v1/analytics/trending", h.analyticsTrending)
 	mux.HandleFunc("GET /api/v1/analytics/referers", h.analyticsReferers)
 	mux.HandleFunc("GET /api/v1/analytics/export", h.analyticsExport)
+}
+
+// --- Certificate status ---
+
+func (h *Handler) listCerts(w http.ResponseWriter, r *http.Request) {
+	certs, err := h.store.ListCerts()
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	writeJSON(w, http.StatusOK, certs)
 }
 
 // --- Domain handlers ---
