@@ -157,3 +157,19 @@ Most enterprises evaluating this solution already have Vault deployed. If they d
 - Covered by `internal/redirect/matcher_test.go` (exact, longest-prefix, preserve_path, preserve_query, case-insensitivity, normalization).
 
 **Deploy note**: live nodes need a redeploy of the new binary; the column migrations run automatically at startup against the existing PG.
+
+---
+
+## ADR-012: Shared Cross-Region Cert Store (Object Storage)
+
+**Decision**: Back CertMagic with the shared Object Storage bucket (the same bucket used for rules sync), via an `S3Storage` implementing `certmagic.Storage` under a `certmagic/` prefix. All six instances across both regions read and write certs and ACME challenge state to this one store, replacing the per-region PG `cert_store`.
+
+**Context**: The delivery model is **direct-to-engine** (confirmed by Brian): a customer domain's A records point at *both* regions' reserved IPs for redundancy, and our engine terminates TLS. With per-region PG cert stores, on-demand issuance failed for any such domain: Let's Encrypt validates against whichever IP DNS returns, and the challenge solved in one region wasn't available in the other (and each region's cert wasn't visible to the other). HTTP worked; HTTPS hung/failed.
+
+**Rationale**: A single shared store makes both the ACME **challenge** and the issued **cert** available fleet-wide, so validation succeeds no matter which region/instance LE hits, and any instance can serve TLS for any issued domain. Object Storage was chosen over a shared PG because (a) it is already the cross-region shared layer (rules sync), (b) every instance already holds its credentials — zero new infra, firewall, or allow-list changes, and (c) it avoids coupling both regions to one region's database. Locking uses a conditional-PUT lock object with a stale-steal TTL; worst case under an unsupported conditional-put is a rare duplicate ACME order, which Let's Encrypt de-duplicates — never corruption.
+
+**Related fixes (same effort)**: the data plane's ACME account had no email (`invalidContact`) — `NewLoader` now configures the account (ADR references the fix in `certs.go`); and the `:80` handler no longer redirects `/.well-known/acme-challenge/` paths (it was 302-ing Let's Encrypt to the redirect target). The `/certs` view reads from the active store (`certs.ListCerts`), so it shows every cert the fleet has issued.
+
+**Verified**: IAD serves a cert issued by ORD; a domain with A records at both regions issues and serves HTTPS end-to-end with a valid Let's Encrypt cert.
+
+**Revisit if**: the model moves to Akamai-in-front (edge terminates TLS → our engine serves plain HTTP and needs no certs), or issuance volume warrants a dedicated cert store.
