@@ -14,10 +14,24 @@ import (
 type Config struct {
 	AdminDomain string
 	Email       string
-	DataDir     string // File storage (SQLite/dev mode)
+	DataDir     string             // File storage (SQLite/dev mode)
 	Staging     bool
 	CheckDomain func(name string) bool
-	PGDB        *sql.DB // If set, use PG storage instead of file storage
+	PGDB        *sql.DB            // If set (and Storage is nil), use PG storage
+	Storage     certmagic.Storage  // Shared cross-region store (preferred); e.g. S3Storage
+}
+
+// setStorage selects the cert storage backend, most-shared first: an explicit
+// cross-region Storage (S3), then per-region PG, then local files.
+func setStorage(cfg Config) {
+	switch {
+	case cfg.Storage != nil:
+		certmagic.Default.Storage = cfg.Storage
+	case cfg.PGDB != nil:
+		certmagic.Default.Storage = NewPGStorage(cfg.PGDB)
+	case cfg.DataDir != "":
+		certmagic.Default.Storage = &certmagic.FileStorage{Path: cfg.DataDir}
+	}
 }
 
 // Manager handles TLS certificate provisioning and serving.
@@ -36,12 +50,7 @@ func NewManager(cfg Config) (*Manager, error) {
 		certmagic.DefaultACME.CA = certmagic.LetsEncryptStagingCA
 	}
 
-	// Storage backend: PG if available, otherwise file
-	if cfg.PGDB != nil {
-		certmagic.Default.Storage = NewPGStorage(cfg.PGDB)
-	} else if cfg.DataDir != "" {
-		certmagic.Default.Storage = &certmagic.FileStorage{Path: cfg.DataDir}
-	}
+	setStorage(cfg)
 
 	magic := certmagic.NewDefault()
 
@@ -85,12 +94,7 @@ func NewManager(cfg Config) (*Manager, error) {
 // cert), so on-demand issuance must run here. The ACME account is configured below
 // or Let's Encrypt account registration fails.
 func NewLoader(cfg Config) (*Manager, error) {
-	// Storage backend: PG if available, otherwise file
-	if cfg.PGDB != nil {
-		certmagic.Default.Storage = NewPGStorage(cfg.PGDB)
-	} else if cfg.DataDir != "" {
-		certmagic.Default.Storage = &certmagic.FileStorage{Path: cfg.DataDir}
-	}
+	setStorage(cfg)
 
 	// Configure the ACME account for on-demand issuance (email + ToS agreement).
 	// Without a valid email, LE rejects account registration with invalidContact.

@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bapley/tld-redirect/internal/certs"
 	"github.com/bapley/tld-redirect/internal/redirect"
 	"github.com/bapley/tld-redirect/internal/store"
 )
@@ -73,12 +74,12 @@ func (h *Handler) Register(mux *http.ServeMux) {
 // --- Certificate status ---
 
 func (h *Handler) listCerts(w http.ResponseWriter, r *http.Request) {
-	certs, err := h.store.ListCerts()
+	list, err := certs.ListCerts(r.Context())
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
-	writeJSON(w, http.StatusOK, certs)
+	writeJSON(w, http.StatusOK, list)
 }
 
 // --- Domain handlers ---

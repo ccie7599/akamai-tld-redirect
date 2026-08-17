@@ -151,6 +151,12 @@ func runControl(db *store.Store, token, adminDomain, acmeEmail, certDir string, 
 	if db.Dialect() == store.DialectPostgres {
 		certCfg.PGDB = db.DB()
 	}
+	if syncCfg.Bucket != "" {
+		certCfg.Storage = certs.NewS3Storage(certs.S3Config{
+			Endpoint: syncCfg.Endpoint, Region: syncCfg.Region, Bucket: syncCfg.Bucket,
+			AccessKey: syncCfg.AccessKey, SecretKey: syncCfg.SecretKey,
+		})
+	}
 	certMgr, err := certs.NewManager(certCfg)
 	if err != nil {
 		log.Fatalf("certmagic: %v", err)
@@ -237,6 +243,14 @@ func runData(db *store.Store, adminDomain, acmeEmail, certDir string, staging bo
 		certCfg.PGDB = db.DB()
 	} else if certDir != "" {
 		certCfg.DataDir = certDir
+	}
+	// Shared cross-region cert store (Object Storage) — makes on-demand TLS work
+	// when a domain's A records point at both regions. Preferred over per-region PG.
+	if syncCfg.Bucket != "" {
+		certCfg.Storage = certs.NewS3Storage(certs.S3Config{
+			Endpoint: syncCfg.Endpoint, Region: syncCfg.Region, Bucket: syncCfg.Bucket,
+			AccessKey: syncCfg.AccessKey, SecretKey: syncCfg.SecretKey,
+		})
 	}
 	certMgr, err := certs.NewLoader(certCfg)
 	if err != nil {
