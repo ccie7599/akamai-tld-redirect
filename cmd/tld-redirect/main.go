@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -264,6 +265,13 @@ func runData(db *store.Store, adminDomain, acmeEmail, certDir string, staging bo
 
 	// HTTP on :80 — redirects (for domains) + HTTPS upgrade
 	httpFallback := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Never redirect ACME HTTP-01 challenge requests. If this instance isn't
+		// the one solving the challenge, return 404 — do NOT send Let's Encrypt to
+		// the domain's redirect target (that fails validation with 403).
+		if strings.HasPrefix(r.URL.Path, "/.well-known/acme-challenge/") {
+			http.NotFound(w, r)
+			return
+		}
 		host := stripHostPort(r.Host)
 		if engine.HasDomain(host) {
 			engine.ServeHTTP(w, r)
@@ -394,6 +402,13 @@ func runTLS(db *store.Store, engine *redirect.Engine, apiHandler *api.Handler, t
 
 	// HTTP server on :80 — ACME challenges + domain redirects + HTTPS upgrade for admin
 	httpFallback := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Never redirect ACME HTTP-01 challenge requests. If this instance isn't
+		// the one solving the challenge, return 404 — do NOT send Let's Encrypt to
+		// the domain's redirect target (that fails validation with 403).
+		if strings.HasPrefix(r.URL.Path, "/.well-known/acme-challenge/") {
+			http.NotFound(w, r)
+			return
+		}
 		host := stripHostPort(r.Host)
 		if engine.HasDomain(host) {
 			engine.ServeHTTP(w, r)
