@@ -79,14 +79,25 @@ func NewManager(cfg Config) (*Manager, error) {
 	return &Manager{magic: magic, issuer: issuer, cfg: cfg}, nil
 }
 
-// NewLoader creates a cert manager that only reads certs from storage (data plane).
-// It does NOT provision certs via ACME — it relies on a control plane to do that.
+// NewLoader creates the data-plane cert manager. It reads existing certs from the
+// shared store AND provisions new ones on demand via ACME: the data plane is what
+// receives redirect HTTPS traffic (the control plane only provisions its own admin
+// cert), so on-demand issuance must run here. The ACME account is configured below
+// or Let's Encrypt account registration fails.
 func NewLoader(cfg Config) (*Manager, error) {
 	// Storage backend: PG if available, otherwise file
 	if cfg.PGDB != nil {
 		certmagic.Default.Storage = NewPGStorage(cfg.PGDB)
 	} else if cfg.DataDir != "" {
 		certmagic.Default.Storage = &certmagic.FileStorage{Path: cfg.DataDir}
+	}
+
+	// Configure the ACME account for on-demand issuance (email + ToS agreement).
+	// Without a valid email, LE rejects account registration with invalidContact.
+	certmagic.DefaultACME.Agreed = true
+	certmagic.DefaultACME.Email = cfg.Email
+	if cfg.Staging {
+		certmagic.DefaultACME.CA = certmagic.LetsEncryptStagingCA
 	}
 
 	magic := certmagic.NewDefault()
@@ -104,7 +115,7 @@ func NewLoader(cfg Config) (*Manager, error) {
 		},
 	}
 
-	log.Printf("certs: loader mode — reading certs from storage (no ACME provisioning)")
+	log.Printf("certs: loader + on-demand ACME issuance (account email=%q)", cfg.Email)
 	return &Manager{magic: magic, cfg: cfg}, nil
 }
 

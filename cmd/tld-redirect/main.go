@@ -90,7 +90,7 @@ func main() {
 	case "control":
 		runControl(db, *token, *adminDomain, *acmeEmail, *certDir, *staging, *seedFile, syncCfg(*syncEndpoint, *syncBucket, *syncKey, *syncAccessKey, *syncSecretKey, *syncRegion))
 	case "data":
-		runData(db, *adminDomain, *certDir, *staging, *ds2Endpoint, syncCfg(*syncEndpoint, *syncBucket, *syncKey, *syncAccessKey, *syncSecretKey, *syncRegion))
+		runData(db, *adminDomain, *acmeEmail, *certDir, *staging, *ds2Endpoint, syncCfg(*syncEndpoint, *syncBucket, *syncKey, *syncAccessKey, *syncSecretKey, *syncRegion))
 	default:
 		// Legacy single-binary mode (backwards compatible)
 		runLegacy(db, *token, *seedFile, *useTLS, *adminDomain, *acmeEmail, *certDir, *staging, *ds2Endpoint, *adminAddr, *redirectAddr)
@@ -206,7 +206,7 @@ func runControl(db *store.Store, token, adminDomain, acmeEmail, certDir string, 
 
 // --- Data Plane ---
 
-func runData(db *store.Store, adminDomain, certDir string, staging bool, ds2Endpoint string, syncCfg rsync.Config) {
+func runData(db *store.Store, adminDomain, acmeEmail, certDir string, staging bool, ds2Endpoint string, syncCfg rsync.Config) {
 	log.Printf("data plane: starting redirect engine + beacon")
 
 	// Analytics pipeline
@@ -228,6 +228,7 @@ func runData(db *store.Store, adminDomain, certDir string, staging bool, ds2Endp
 	// CertMagic — loader only (reads certs from PG, no ACME provisioning)
 	certCfg := certs.Config{
 		AdminDomain: adminDomain,
+		Email:       acmeEmail,
 		Staging:     staging,
 		CheckDomain: engine.HasDomain,
 	}
