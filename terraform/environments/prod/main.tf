@@ -29,6 +29,7 @@ module "ord" {
 
   region                = "us-ord"
   region_label          = "ord"
+  env_suffix            = "-PROD"
   ssh_public_key_path   = var.ssh_public_key_path
   admin_cidrs           = var.admin_cidrs
   ui_cidrs              = var.ui_cidrs
@@ -47,6 +48,7 @@ module "iad" {
 
   region                = "us-iad"
   region_label          = "iad"
+  env_suffix            = "-PROD"
   ssh_public_key_path   = var.ssh_public_key_path
   admin_cidrs           = var.admin_cidrs
   ui_cidrs              = var.ui_cidrs

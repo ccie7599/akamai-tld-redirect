@@ -14,6 +14,7 @@ terraform {
 
 locals {
   prefix     = "tld-${var.region_label}"
+  suffix     = var.env_suffix
   ssh_pubkey = trimspace(file(var.ssh_public_key_path))
   cloud_init = base64encode(file("${path.module}/cloud-init.yaml"))
 }
@@ -23,7 +24,7 @@ locals {
 # -----------------------------------------------------------------------------
 
 resource "linode_database_postgresql_v2" "redirect" {
-  label     = "${local.prefix}-pg"
+  label     = "${local.prefix}-pg${local.suffix}"
   region    = var.region
   engine_id = var.pg_engine_id
   type      = var.pg_engine_type
@@ -46,7 +47,7 @@ resource "linode_database_postgresql_v2" "redirect" {
 resource "linode_instance" "data" {
   count = var.data_instance_count
 
-  label           = "${local.prefix}-data-${count.index}"
+  label           = "${local.prefix}-data-${count.index}${local.suffix}"
   region          = var.region
   type            = var.data_instance_type
   image           = "linode/ubuntu24.04"
@@ -64,7 +65,7 @@ resource "linode_instance" "data" {
 # -----------------------------------------------------------------------------
 
 resource "linode_instance" "control" {
-  label           = "${local.prefix}-control"
+  label           = "${local.prefix}-control${local.suffix}"
   region          = var.region
   type            = var.control_instance_type
   image           = "linode/ubuntu24.04"
@@ -87,7 +88,7 @@ resource "linode_instance" "control" {
 # -----------------------------------------------------------------------------
 
 resource "linode_nodebalancer" "data" {
-  label  = "${local.prefix}-nb"
+  label  = "${local.prefix}-nb${local.suffix}"
   region = var.region
   tags   = var.tags
 }
@@ -121,7 +122,7 @@ resource "linode_nodebalancer_node" "data_https" {
 
   nodebalancer_id = linode_nodebalancer.data.id
   config_id       = linode_nodebalancer_config.https.id
-  label           = "${local.prefix}-data-${count.index}-https"
+  label           = "${local.prefix}-data-${count.index}-https${local.suffix}"
   address         = "${linode_instance.data[count.index].private_ip_address}:443"
   weight          = 100
   mode            = "accept"
@@ -132,7 +133,7 @@ resource "linode_nodebalancer_node" "data_http" {
 
   nodebalancer_id = linode_nodebalancer.data.id
   config_id       = linode_nodebalancer_config.http.id
-  label           = "${local.prefix}-data-${count.index}-http"
+  label           = "${local.prefix}-data-${count.index}-http${local.suffix}"
   address         = "${linode_instance.data[count.index].private_ip_address}:80"
   weight          = 100
   mode            = "accept"
@@ -145,7 +146,7 @@ resource "linode_nodebalancer_node" "data_http" {
 # -----------------------------------------------------------------------------
 
 resource "linode_firewall" "nodebalancer" {
-  label = "${local.prefix}-nb-fw"
+  label = "${local.prefix}-nb-fw${local.suffix}"
 
   inbound {
     label    = "allow-https"
@@ -177,7 +178,7 @@ resource "linode_firewall" "nodebalancer" {
 # -----------------------------------------------------------------------------
 
 resource "linode_firewall" "data" {
-  label = "${local.prefix}-data-fw"
+  label = "${local.prefix}-data-fw${local.suffix}"
 
   inbound {
     label    = "allow-nb-https"
@@ -215,7 +216,7 @@ resource "linode_firewall" "data" {
 # -----------------------------------------------------------------------------
 
 resource "linode_firewall" "control" {
-  label = "${local.prefix}-control-fw"
+  label = "${local.prefix}-control-fw${local.suffix}"
 
   inbound {
     label    = "allow-admin-https"

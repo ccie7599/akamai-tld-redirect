@@ -65,3 +65,9 @@ variable "tags" {
   type        = list(string)
   default     = ["project:tld-redirect", "customer:tld-demo", "owner:brian"]
 }
+
+variable "env_suffix" {
+  description = "Appended to all resource labels to distinguish environments, e.g. -PROD or -QA"
+  type        = string
+  default     = ""
+}
