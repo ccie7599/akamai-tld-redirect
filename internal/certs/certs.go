@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/caddyserver/certmagic"
+	"github.com/mholt/acmez/v3/acme"
 )
 
 type Config struct {
@@ -19,6 +20,12 @@ type Config struct {
 	CheckDomain func(name string) bool
 	PGDB        *sql.DB            // If set (and Storage is nil), use PG storage
 	Storage     certmagic.Storage  // Shared cross-region store (preferred); e.g. S3Storage
+
+	// ZeroSSL fallback issuer (data plane). Let's Encrypt refuses some names by
+	// policy (e.g. all of pnc.com); with EAB credentials set, ZeroSSL is tried
+	// next in the same issuance attempt. ZeroSSLOnly skips Let's Encrypt (QA tests).
+	ZeroSSLEAB  *acme.EAB
+	ZeroSSLOnly bool
 }
 
 // setStorage selects the cert storage backend, most-shared first: an explicit
@@ -105,6 +112,10 @@ func NewLoader(cfg Config) (*Manager, error) {
 	}
 
 	magic := certmagic.NewDefault()
+	issuer, err := configureIssuers(magic, cfg)
+	if err != nil {
+		return nil, err
+	}
 
 	// On-demand still needs a decision func to validate domains
 	magic.OnDemand = &certmagic.OnDemandConfig{
@@ -120,7 +131,39 @@ func NewLoader(cfg Config) (*Manager, error) {
 	}
 
 	log.Printf("certs: loader + on-demand ACME issuance (account email=%q)", cfg.Email)
-	return &Manager{magic: magic, cfg: cfg}, nil
+	return &Manager{magic: magic, issuer: issuer, cfg: cfg}, nil
+}
+
+// configureIssuers sets the data plane's issuer chain: Let's Encrypt, then
+// ZeroSSL when EAB credentials are configured. It returns the issuer whose HTTP
+// challenge handler serves :80 — that handler finds challenge tokens for every
+// issuer in the shared store, so any instance can answer an HTTP-01 challenge
+// started by any other (ZeroSSL offers only http-01/dns-01, not tls-alpn-01).
+func configureIssuers(magic *certmagic.Config, cfg Config) (*certmagic.ACMEIssuer, error) {
+	le, ok := magic.Issuers[0].(*certmagic.ACMEIssuer)
+	if !ok {
+		return nil, fmt.Errorf("no ACME issuer configured")
+	}
+	if cfg.ZeroSSLEAB == nil {
+		if cfg.ZeroSSLOnly {
+			return nil, fmt.Errorf("ZeroSSL-only requested but no ZeroSSL EAB credentials set")
+		}
+		return le, nil
+	}
+	zs := certmagic.NewACMEIssuer(magic, certmagic.ACMEIssuer{
+		CA:              certmagic.ZeroSSLProductionCA,
+		Email:           cfg.Email,
+		Agreed:          true,
+		ExternalAccount: cfg.ZeroSSLEAB,
+	})
+	if cfg.ZeroSSLOnly {
+		magic.Issuers = []certmagic.Issuer{zs}
+		log.Printf("certs: issuers = ZeroSSL only (Let's Encrypt disabled)")
+	} else {
+		magic.Issuers = []certmagic.Issuer{le, zs}
+		log.Printf("certs: issuers = Let's Encrypt, then ZeroSSL fallback")
+	}
+	return zs, nil
 }
 
 func (m *Manager) TLSConfig() *tls.Config {

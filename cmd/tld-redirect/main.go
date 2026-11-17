@@ -23,6 +23,7 @@ import (
 	"github.com/bapley/tld-redirect/internal/store"
 	rsync "github.com/bapley/tld-redirect/internal/sync"
 	"github.com/bapley/tld-redirect/internal/ui"
+	"github.com/mholt/acmez/v3/acme"
 )
 
 var version = "dev"
@@ -48,6 +49,9 @@ func main() {
 		acmeEmail   = flag.String("acme-email", "admin@connected-cloud.io", "ACME account email")
 		certDir     = flag.String("cert-dir", "", "Certificate storage directory (file-based)")
 		staging     = flag.Bool("staging-ca", false, "Use Let's Encrypt staging CA")
+		zsKID       = flag.String("zerossl-eab-kid", envOr("TLD_ZEROSSL_EAB_KID", ""), "ZeroSSL EAB key ID (enables ZeroSSL fallback issuer)")
+		zsHMAC      = flag.String("zerossl-eab-hmac", envOr("TLD_ZEROSSL_EAB_HMAC", ""), "ZeroSSL EAB HMAC key")
+		zsOnly      = flag.Bool("zerossl-only", envOr("TLD_ZEROSSL_ONLY", "") == "true", "Skip Let's Encrypt and issue only via ZeroSSL (testing)")
 
 		// DS2 beacon
 		ds2Endpoint = flag.String("ds2-endpoint", "", "DS2 beacon endpoint URL (empty = disabled)")
@@ -91,7 +95,11 @@ func main() {
 	case "control":
 		runControl(db, *token, *adminDomain, *acmeEmail, *certDir, *staging, *seedFile, syncCfg(*syncEndpoint, *syncBucket, *syncKey, *syncAccessKey, *syncSecretKey, *syncRegion))
 	case "data":
-		runData(db, *adminDomain, *acmeEmail, *certDir, *staging, *ds2Endpoint, syncCfg(*syncEndpoint, *syncBucket, *syncKey, *syncAccessKey, *syncSecretKey, *syncRegion))
+		var zsEAB *acme.EAB
+		if *zsKID != "" && *zsHMAC != "" {
+			zsEAB = &acme.EAB{KeyID: *zsKID, MACKey: *zsHMAC}
+		}
+		runData(db, *adminDomain, *acmeEmail, *certDir, *staging, zsEAB, *zsOnly, *ds2Endpoint, syncCfg(*syncEndpoint, *syncBucket, *syncKey, *syncAccessKey, *syncSecretKey, *syncRegion))
 	default:
 		// Legacy single-binary mode (backwards compatible)
 		runLegacy(db, *token, *seedFile, *useTLS, *adminDomain, *acmeEmail, *certDir, *staging, *ds2Endpoint, *adminAddr, *redirectAddr)
@@ -213,7 +221,7 @@ func runControl(db *store.Store, token, adminDomain, acmeEmail, certDir string, 
 
 // --- Data Plane ---
 
-func runData(db *store.Store, adminDomain, acmeEmail, certDir string, staging bool, ds2Endpoint string, syncCfg rsync.Config) {
+func runData(db *store.Store, adminDomain, acmeEmail, certDir string, staging bool, zsEAB *acme.EAB, zsOnly bool, ds2Endpoint string, syncCfg rsync.Config) {
 	log.Printf("data plane: starting redirect engine + beacon")
 
 	// Analytics pipeline
@@ -232,12 +240,14 @@ func runData(db *store.Store, adminDomain, acmeEmail, certDir string, staging bo
 		engine.SetBeaconCh(beaconCh)
 	}
 
-	// CertMagic — loader only (reads certs from PG, no ACME provisioning)
+	// CertMagic — on-demand issuance (Let's Encrypt, then ZeroSSL if configured)
 	certCfg := certs.Config{
 		AdminDomain: adminDomain,
 		Email:       acmeEmail,
 		Staging:     staging,
 		CheckDomain: engine.HasDomain,
+		ZeroSSLEAB:  zsEAB,
+		ZeroSSLOnly: zsOnly,
 	}
 	if db.Dialect() == store.DialectPostgres {
 		certCfg.PGDB = db.DB()
