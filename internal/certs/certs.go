@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"slices"
 
 	"github.com/caddyserver/certmagic"
 	"github.com/mholt/acmez/v3/acme"
@@ -15,17 +16,23 @@ import (
 type Config struct {
 	AdminDomain string
 	Email       string
-	DataDir     string             // File storage (SQLite/dev mode)
+	DataDir     string // File storage (SQLite/dev mode)
 	Staging     bool
 	CheckDomain func(name string) bool
-	PGDB        *sql.DB            // If set (and Storage is nil), use PG storage
-	Storage     certmagic.Storage  // Shared cross-region store (preferred); e.g. S3Storage
+	PGDB        *sql.DB           // If set (and Storage is nil), use PG storage
+	Storage     certmagic.Storage // Shared cross-region store (preferred); e.g. S3Storage
 
 	// ZeroSSL fallback issuer (data plane). Let's Encrypt refuses some names by
 	// policy (e.g. all of pnc.com); with EAB credentials set, ZeroSSL is tried
 	// next in the same issuance attempt. ZeroSSLOnly skips Let's Encrypt (QA tests).
 	ZeroSSLEAB  *acme.EAB
 	ZeroSSLOnly bool
+
+	// AdminAliases are extra names the control plane serves alongside
+	// AdminDomain, e.g. a shared origin hostname with A records to every control
+	// node so a CDN can verify one name across regions. Issued in the background
+	// (never blocks startup); the shared store means one cert serves all nodes.
+	AdminAliases []string
 }
 
 // setStorage selects the cert storage backend, most-shared first: an explicit
@@ -61,9 +68,14 @@ func NewManager(cfg Config) (*Manager, error) {
 
 	magic := certmagic.NewDefault()
 
+	issuer, err := configureIssuers(magic, cfg)
+	if err != nil {
+		return nil, err
+	}
+
 	magic.OnDemand = &certmagic.OnDemandConfig{
 		DecisionFunc: func(ctx context.Context, name string) error {
-			if name == cfg.AdminDomain {
+			if name == cfg.AdminDomain || slices.Contains(cfg.AdminAliases, name) {
 				return nil
 			}
 			if cfg.CheckDomain != nil && cfg.CheckDomain(name) {
@@ -73,24 +85,20 @@ func NewManager(cfg Config) (*Manager, error) {
 		},
 	}
 
-	// Get the ACME issuer for HTTP challenge handling
-	var issuer *certmagic.ACMEIssuer
-	for _, iss := range magic.Issuers {
-		if acme, ok := iss.(*certmagic.ACMEIssuer); ok {
-			issuer = acme
-			break
-		}
-	}
-	if issuer == nil {
-		return nil, fmt.Errorf("no ACME issuer configured")
-	}
-
 	// Pre-provision the admin domain cert
 	ctx := context.Background()
 	if err := magic.ManageSync(ctx, []string{cfg.AdminDomain}); err != nil {
 		return nil, fmt.Errorf("provision cert for %s: %w", cfg.AdminDomain, err)
 	}
 	log.Printf("certs: provisioned TLS for %s", cfg.AdminDomain)
+
+	if len(cfg.AdminAliases) > 0 {
+		if err := magic.ManageAsync(ctx, cfg.AdminAliases); err != nil {
+			log.Printf("certs: managing admin aliases %v: %v", cfg.AdminAliases, err)
+		} else {
+			log.Printf("certs: managing admin aliases %v (background issuance)", cfg.AdminAliases)
+		}
+	}
 
 	return &Manager{magic: magic, issuer: issuer, cfg: cfg}, nil
 }
@@ -134,7 +142,7 @@ func NewLoader(cfg Config) (*Manager, error) {
 	return &Manager{magic: magic, issuer: issuer, cfg: cfg}, nil
 }
 
-// configureIssuers sets the data plane's issuer chain: Let's Encrypt, then
+// configureIssuers sets the issuer chain: Let's Encrypt, then
 // ZeroSSL when EAB credentials are configured. It returns the issuer whose HTTP
 // challenge handler serves :80 — that handler finds challenge tokens for every
 // issuer in the shared store, so any instance can answer an HTTP-01 challenge

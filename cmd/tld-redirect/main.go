@@ -44,14 +44,15 @@ func main() {
 		seedFile = flag.String("seed", "", "Seed data file (JSON)")
 
 		// TLS
-		useTLS      = flag.Bool("tls", false, "Enable TLS via CertMagic (production mode)")
-		adminDomain = flag.String("admin-domain", "redirects.connected-cloud.io", "Admin UI domain")
-		acmeEmail   = flag.String("acme-email", "admin@connected-cloud.io", "ACME account email")
-		certDir     = flag.String("cert-dir", "", "Certificate storage directory (file-based)")
-		staging     = flag.Bool("staging-ca", false, "Use Let's Encrypt staging CA")
-		zsKID       = flag.String("zerossl-eab-kid", envOr("TLD_ZEROSSL_EAB_KID", ""), "ZeroSSL EAB key ID (enables ZeroSSL fallback issuer)")
-		zsHMAC      = flag.String("zerossl-eab-hmac", envOr("TLD_ZEROSSL_EAB_HMAC", ""), "ZeroSSL EAB HMAC key")
-		zsOnly      = flag.Bool("zerossl-only", envOr("TLD_ZEROSSL_ONLY", "") == "true", "Skip Let's Encrypt and issue only via ZeroSSL (testing)")
+		useTLS       = flag.Bool("tls", false, "Enable TLS via CertMagic (production mode)")
+		adminDomain  = flag.String("admin-domain", "redirects.connected-cloud.io", "Admin UI domain")
+		acmeEmail    = flag.String("acme-email", "admin@connected-cloud.io", "ACME account email")
+		certDir      = flag.String("cert-dir", "", "Certificate storage directory (file-based)")
+		staging      = flag.Bool("staging-ca", false, "Use Let's Encrypt staging CA")
+		adminAliases = flag.String("admin-aliases", envOr("TLD_ADMIN_ALIASES", ""), "Comma-separated extra admin hostnames (control plane), e.g. a shared CDN origin name")
+		zsKID        = flag.String("zerossl-eab-kid", envOr("TLD_ZEROSSL_EAB_KID", ""), "ZeroSSL EAB key ID (enables ZeroSSL fallback issuer)")
+		zsHMAC       = flag.String("zerossl-eab-hmac", envOr("TLD_ZEROSSL_EAB_HMAC", ""), "ZeroSSL EAB HMAC key")
+		zsOnly       = flag.Bool("zerossl-only", envOr("TLD_ZEROSSL_ONLY", "") == "true", "Skip Let's Encrypt and issue only via ZeroSSL (testing)")
 
 		// DS2 beacon
 		ds2Endpoint = flag.String("ds2-endpoint", "", "DS2 beacon endpoint URL (empty = disabled)")
@@ -91,14 +92,15 @@ func main() {
 	defer db.Close()
 
 	// Branch on mode
+	var zsEAB *acme.EAB
+	if *zsKID != "" && *zsHMAC != "" {
+		zsEAB = &acme.EAB{KeyID: *zsKID, MACKey: *zsHMAC}
+	}
+
 	switch *mode {
 	case "control":
-		runControl(db, *token, *adminDomain, *acmeEmail, *certDir, *staging, *seedFile, syncCfg(*syncEndpoint, *syncBucket, *syncKey, *syncAccessKey, *syncSecretKey, *syncRegion))
+		runControl(db, *token, *adminDomain, splitList(*adminAliases), *acmeEmail, *certDir, *staging, zsEAB, *zsOnly, *seedFile, syncCfg(*syncEndpoint, *syncBucket, *syncKey, *syncAccessKey, *syncSecretKey, *syncRegion))
 	case "data":
-		var zsEAB *acme.EAB
-		if *zsKID != "" && *zsHMAC != "" {
-			zsEAB = &acme.EAB{KeyID: *zsKID, MACKey: *zsHMAC}
-		}
 		runData(db, *adminDomain, *acmeEmail, *certDir, *staging, zsEAB, *zsOnly, *ds2Endpoint, syncCfg(*syncEndpoint, *syncBucket, *syncKey, *syncAccessKey, *syncSecretKey, *syncRegion))
 	default:
 		// Legacy single-binary mode (backwards compatible)
@@ -119,7 +121,7 @@ func syncCfg(endpoint, bucket, key, accessKey, secretKey, region string) rsync.C
 
 // --- Control Plane ---
 
-func runControl(db *store.Store, token, adminDomain, acmeEmail, certDir string, staging bool, seedFile string, syncCfg rsync.Config) {
+func runControl(db *store.Store, token, adminDomain string, adminAliases []string, acmeEmail, certDir string, staging bool, zsEAB *acme.EAB, zsOnly bool, seedFile string, syncCfg rsync.Config) {
 	// Fail closed: the control plane exposes the admin API — refuse to serve it
 	// behind an unset or well-known default token. This is a hard requirement for
 	// any non-dev deployment, not a warning.
@@ -150,11 +152,14 @@ func runControl(db *store.Store, token, adminDomain, acmeEmail, certDir string, 
 
 	// CertMagic — full provisioner (DNS-01 via ACME)
 	certCfg := certs.Config{
-		AdminDomain: adminDomain,
-		Email:       acmeEmail,
-		DataDir:     certDir,
-		Staging:     staging,
-		CheckDomain: engine.HasDomain,
+		AdminDomain:  adminDomain,
+		Email:        acmeEmail,
+		DataDir:      certDir,
+		Staging:      staging,
+		CheckDomain:  engine.HasDomain,
+		AdminAliases: adminAliases,
+		ZeroSSLEAB:   zsEAB,
+		ZeroSSLOnly:  zsOnly,
 	}
 	if db.Dialect() == store.DialectPostgres {
 		certCfg.PGDB = db.DB()
@@ -525,6 +530,17 @@ func seed(db *store.Store, engine *redirect.Engine, path string) error {
 	log.Printf("seed: imported %d domains from %s", count, path)
 	engine.Reload()
 	return nil
+}
+
+// splitList parses a comma-separated flag value, dropping empty entries.
+func splitList(v string) []string {
+	var out []string
+	for _, s := range strings.Split(v, ",") {
+		if s = strings.TrimSpace(s); s != "" {
+			out = append(out, s)
+		}
+	}
+	return out
 }
 
 func envOr(key, fallback string) string {
